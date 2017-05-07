@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">PrincipalApp</string>
+
+    <string name="dashboard">Dashboard</string>
+    <string name="attendance">Attendance</string>
+    <string name="homework">Homework</string>
+    <string name="chat">Chat</string>
+    <string name="change">Change</string>
+    <string name="future_date">Selected date can\'t be future to present day</string>
+
+    <string name="network_error">A network error has occurred.</string>
+    <string name="request_error">Connection timed out.</string>
+    <string name="retry">Retry</string>
+
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="enter_login_id">Enter login id</string>
+    <string name="enter_password">Enter password</string>
+    <string name="no_user">User doesn\'t exist</string>
+
+    <string name="logout">Logout</string>
+</resources>
