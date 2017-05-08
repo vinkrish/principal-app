@@ -2,6 +2,7 @@
     <string name="app_name">PrincipalApp</string>
 
     <string name="dashboard">Dashboard</string>
+    <string name="groups">Groups</string>
     <string name="attendance">Attendance</string>
     <string name="homework">Homework</string>
     <string name="chat">Chat</string>
@@ -14,9 +15,14 @@
 
     <string name="login">Login</string>
     <string name="forgot_password">Forgot password?</string>
-    <string name="enter_login_id">Enter login id</string>
-    <string name="enter_password">Enter password</string>
+    <string name="login_id">Login Id</string>
+    <string name="password">Password</string>
     <string name="no_user">User doesn\'t exist</string>
 
     <string name="logout">Logout</string>
+    <string name="title_activity_attendance">AttendanceActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_chats">ChatsActivity</string>
+    <string name="title_activity_homework">HomeworkActivity</string>
+    <string name="title_activity_message">MessageActivity</string>
 </resources>
