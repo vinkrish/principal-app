@@ -30,28 +30,33 @@
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" />
         <activity android:name=".dashboard.DashboardActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar"/>
         <activity
             android:name=".attendance.AttendanceActivity"
             android:label="@string/title_activity_attendance"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".chathome.ChatsActivity"
             android:label="@string/title_activity_chats"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".homework.HomeworkActivity"
             android:label="@string/title_activity_homework"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".messagegroup.MessageActivity"
             android:label="@string/title_activity_message"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dashboard.DashboardActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -6,6 +6,8 @@
     <string name="attendance">Attendance</string>
     <string name="homework">Homework</string>
     <string name="chat">Chat</string>
+
+    <string name="group_info">Group Info</string>
     <string name="change">Change</string>
     <string name="future_date">Selected date can\'t be future to present day</string>
 
