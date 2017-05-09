@@ -35,18 +35,11 @@ public interface PrincipalApi {
     @GET("class/teacher/{teacherId}")
     Call<List<Clas>> getSectionTeacherClasses(@Path("teacherId") long teacherId);
 
-    @GET("class/subjectteacher/{teacherId}")
-    Call<List<Clas>> getSubjectTeacherClasses(@Path("teacherId") long teacherId);
-
     @GET("section/class/{classId}")
     Call<List<Section>> getSectionList(@Path("classId") long classId);
 
     @GET("section/class/{classId}/teacher/{teacherId}")
     Call<List<Section>> getSectionTeacherSections(@Path("classId") long classId,
-                                                  @Path("teacherId") long teacherId);
-
-    @GET("section/class/{classId}/subjectteacher/{teacherId}")
-    Call<List<Section>> getSubjectTeacherSections(@Path("classId") long classId,
                                                   @Path("teacherId") long teacherId);
 
     @GET("student/section/{sectionId}")
@@ -117,12 +110,6 @@ public interface PrincipalApi {
     Call<AttendanceSet> getAttendanceSet(@Path("sectionId") long sectionId,
                                          @Path("dateAttendance") String dateAttendance,
                                          @Path("session") int session);
-
-    @POST("app/attendance")
-    Call<Void> saveAttendance(@Body ArrayList<Attendance> attendances);
-
-    @POST("app/attendance/delete")
-    Call<Void> deleteAttendance(@Body ArrayList<Attendance> attendanceList);
 
     //Homework API
 

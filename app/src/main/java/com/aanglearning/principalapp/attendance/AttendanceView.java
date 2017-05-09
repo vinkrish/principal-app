@@ -24,8 +24,4 @@ interface AttendanceView {
     void showTimetable(List<Timetable> timetableList);
 
     void showAttendance(AttendanceSet attendanceSet);
-
-    void attendanceSaved();
-
-    void attendanceDeleted();
 }

@@ -24,18 +24,18 @@ public class AttendancePresenterImpl implements AttendancePresenter,
     }
 
     @Override
-    public void getClassList(long teacherId) {
+    public void getClassList(long schoolId) {
         if (mView != null) {
             mView.showProgress();
-            mInteractor.getClassList(teacherId, this);
+            mInteractor.getClassList(schoolId, this);
         }
     }
 
     @Override
-    public void getSectionList(long classId, long teacherId) {
+    public void getSectionList(long classId) {
         if (mView != null) {
             mView.showProgress();
-            mInteractor.getSectionList(classId, teacherId, this);
+            mInteractor.getSectionList(classId, this);
         }
     }
 
@@ -52,22 +52,6 @@ public class AttendancePresenterImpl implements AttendancePresenter,
         if (mView != null) {
             mView.showProgress();
             mInteractor.getTimetable(sectionId, dayOfWeek, this);
-        }
-    }
-
-    @Override
-    public void saveAttendance(ArrayList<Attendance> attendances) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.saveAttendance(attendances, this);
-        }
-    }
-
-    @Override
-    public void deleteAttendance(ArrayList<Attendance> attendances) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.deleteAttendance(attendances, this);
         }
     }
 
@@ -116,19 +100,4 @@ public class AttendancePresenterImpl implements AttendancePresenter,
         }
     }
 
-    @Override
-    public void onAttendanceSaved() {
-        if (mView != null) {
-            mView.attendanceSaved();
-            mView.hideProgress();
-        }
-    }
-
-    @Override
-    public void onAttendanceDeleted() {
-        if (mView != null) {
-            mView.attendanceDeleted();
-            mView.hideProgress();
-        }
-    }
 }

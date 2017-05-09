@@ -4,12 +4,10 @@ import com.aanglearning.principalapp.App;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.api.ApiClient;
 import com.aanglearning.principalapp.api.PrincipalApi;
-import com.aanglearning.principalapp.model.Attendance;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Section;
 import com.aanglearning.principalapp.model.Timetable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -22,10 +20,10 @@ import retrofit2.Response;
 
 class AttendanceInteractorImpl implements AttendanceInteractor {
     @Override
-    public void getClassList(long teacherId, final OnFinishedListener listener) {
+    public void getClassList(long schoolId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Clas>> classList = api.getSectionTeacherClasses(teacherId);
+        Call<List<Clas>> classList = api.getClassList(schoolId);
         classList.enqueue(new Callback<List<Clas>>() {
             @Override
             public void onResponse(Call<List<Clas>> call, Response<List<Clas>> response) {
@@ -43,10 +41,10 @@ class AttendanceInteractorImpl implements AttendanceInteractor {
     }
 
     @Override
-    public void getSectionList(long classId, final long teacherId, final OnFinishedListener listener) {
+    public void getSectionList(long classId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Section>> classList = api.getSectionTeacherSections(classId, teacherId);
+        Call<List<Section>> classList = api.getSectionList(classId);
         classList.enqueue(new Callback<List<Section>>() {
             @Override
             public void onResponse(Call<List<Section>> call, Response<List<Section>> response) {
@@ -100,48 +98,6 @@ class AttendanceInteractorImpl implements AttendanceInteractor {
             }
             @Override
             public void onFailure(Call<AttendanceSet> call, Throwable t) {
-                listener.onError(App.getInstance().getString(R.string.network_error));
-            }
-        });
-    }
-
-    @Override
-    public void saveAttendance(ArrayList<Attendance> attendances, final OnFinishedListener listener) {
-        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
-
-        Call<Void> saveAtt = api.saveAttendance(attendances);
-        saveAtt.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if(response.isSuccessful()) {
-                    listener.onAttendanceSaved();
-                } else {
-                    listener.onError(App.getInstance().getString(R.string.request_error));
-                }
-            }
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                listener.onError(App.getInstance().getString(R.string.network_error));
-            }
-        });
-    }
-
-    @Override
-    public void deleteAttendance(ArrayList<Attendance> attendances, final OnFinishedListener listener) {
-        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
-
-        Call<Void> deleteAtt = api.deleteAttendance(attendances);
-        deleteAtt.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if(response.isSuccessful()) {
-                    listener.onAttendanceDeleted();
-                } else {
-                    listener.onError(App.getInstance().getString(R.string.request_error));
-                }
-            }
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
             }
         });
