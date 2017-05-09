@@ -117,12 +117,4 @@ public interface PrincipalApi {
     Call<List<Homework>> getHomework(@Path("sectionId") long sectionId,
                                      @Path("homeworkDate") String homeworkDate);
 
-    @POST("homework")
-    Call<Homework> saveHomework(@Body Homework homework);
-
-    @PUT("homework")
-    Call<Void> updateHomework(@Body Homework homework);
-
-    @POST("homework/delete")
-    Call<Void> deleteHomework(@Body List<Homework> homeworks);
 }

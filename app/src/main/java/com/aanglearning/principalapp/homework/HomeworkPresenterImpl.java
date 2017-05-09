@@ -31,10 +31,10 @@ public class HomeworkPresenterImpl implements HomeworkPresenter,
     }
 
     @Override
-    public void getSectionList(long classId, long teacherId) {
+    public void getSectionList(long classId) {
         if (mView != null) {
             mView.showProgress();
-            mInteractor.getSectionList(classId, teacherId, this);
+            mInteractor.getSectionList(classId, this);
         }
     }
 
@@ -43,30 +43,6 @@ public class HomeworkPresenterImpl implements HomeworkPresenter,
         if (mView != null) {
             mView.showProgress();
             mInteractor.getHomework(sectionId, date, this);
-        }
-    }
-
-    @Override
-    public void saveHomework(Homework homework) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.saveHomework(homework, this);
-        }
-    }
-
-    @Override
-    public void updateHomework(Homework homework) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.updateHomework(homework, this);
-        }
-    }
-
-    @Override
-    public void deleteHomework(ArrayList<Homework> homeworks) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.deleteHomework(homeworks, this);
         }
     }
 
@@ -107,27 +83,4 @@ public class HomeworkPresenterImpl implements HomeworkPresenter,
         }
     }
 
-    @Override
-    public void onHomeworkSaved(Homework homework) {
-        if (mView != null) {
-            mView.homeworkSaved(homework);
-            mView.hideProgress();
-        }
-    }
-
-    @Override
-    public void onHomeworkUpdated() {
-        if (mView != null) {
-            mView.homeworkUpdated();
-            mView.hideProgress();
-        }
-    }
-
-    @Override
-    public void onHomeworkDeleted() {
-        if (mView != null) {
-            mView.homeworkDeleted();
-            mView.hideProgress();
-        }
-    }
 }

@@ -22,10 +22,4 @@ public interface HomeworkView {
     void showSection(List<Section> sectionList);
 
     void showHomeworks(List<Homework> homeworks);
-
-    void homeworkSaved(Homework homework);
-
-    void homeworkUpdated();
-
-    void homeworkDeleted();
 }

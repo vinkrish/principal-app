@@ -37,7 +37,12 @@
         <activity
             android:name=".attendance.AttendanceActivity"
             android:label="@string/title_activity_attendance"
-            android:theme="@style/NoActionBar" />
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dashboard.DashboardActivity" />
+        </activity>
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
@@ -49,7 +54,12 @@
         <activity
             android:name=".homework.HomeworkActivity"
             android:label="@string/title_activity_homework"
-            android:theme="@style/NoActionBar" />
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dashboard.DashboardActivity" />
+        </activity>
         <activity
             android:name=".messagegroup.MessageActivity"
             android:label="@string/title_activity_message"
