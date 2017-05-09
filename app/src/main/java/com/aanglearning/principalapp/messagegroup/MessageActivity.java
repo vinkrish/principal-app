@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.messagegroup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -17,6 +18,7 @@ import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.GroupDao;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Message;
+import com.aanglearning.principalapp.usergroup.UserGroupActivity;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 
 import java.util.ArrayList;
@@ -82,7 +84,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.group_info:
-                //startActivity(new Intent(this, UserGroupActivity.class));
+                startActivity(new Intent(this, UserGroupActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
