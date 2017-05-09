@@ -81,7 +81,7 @@ public interface PrincipalApi {
     @POST("chat")
     Call<Chat> saveChat(@Body Chat chat);
 
-    @GET("chat/teacher/{id}")
+    @GET("chat/principal/{id}")
     Call<List<Chat>> getChats(@Path("id") long id);
 
     @GET("chat/{chatId}")
