@@ -11,6 +11,7 @@ import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.model.Homework;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,19 +20,19 @@ import butterknife.ButterKnife;
  * Created by Vinay on 24-04-2017.
  */
 
-public class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.ViewHolder>{
-    private ArrayList<Homework> homeworks;
+class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.ViewHolder>{
+    private List<Homework> homeworks;
 
-    HomeworkAdapter(ArrayList<Homework> homeworks) {
+    HomeworkAdapter(List<Homework> homeworks) {
         this.homeworks = homeworks;
     }
 
-    public ArrayList<Homework> getDataSet() {
+    public List<Homework> getDataSet() {
         return homeworks;
     }
 
     @UiThread
-    public void setDataSet(ArrayList<Homework> homeworks) {
+    void setDataSet(List<Homework> homeworks) {
         this.homeworks = homeworks;
         notifyDataSetChanged();
     }

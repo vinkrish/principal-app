@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.model.UserGroup;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,11 +19,21 @@ import butterknife.ButterKnife;
  * Created by Vinay on 03-04-2017.
  */
 
-public class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder> {
-    private ArrayList<UserGroup> users;
+class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder> {
+    private List<UserGroup> users;
 
-    UserGroupAdapter(ArrayList<UserGroup> users) {
+    UserGroupAdapter(List<UserGroup> users) {
         this.users = users;
+    }
+
+    public List<UserGroup> getDataSet() {
+        return users;
+    }
+
+    @UiThread
+    void setDataSet(List<UserGroup> users) {
+        this.users = users;
+        notifyDataSetChanged();
     }
 
     @Override

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.model.Attendance;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,19 +19,19 @@ import butterknife.ButterKnife;
  * Created by Vinay on 23-04-2017.
  */
 
-public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder>{
-    private ArrayList<Attendance> absentees;
+class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder>{
+    private List<Attendance> absentees;
 
-    AttendanceAdapter(ArrayList<Attendance> absentees) {
+    AttendanceAdapter(List<Attendance> absentees) {
         this.absentees = absentees;
     }
 
-    public ArrayList<Attendance> getDataSet() {
+    public List<Attendance> getDataSet() {
         return absentees;
     }
 
     @UiThread
-    public void setDataSet(ArrayList<Attendance> absentees) {
+    void setDataSet(List<Attendance> absentees) {
         this.absentees = absentees;
         notifyDataSetChanged();
     }

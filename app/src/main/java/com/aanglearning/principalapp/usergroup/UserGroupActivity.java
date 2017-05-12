@@ -3,6 +3,8 @@ package com.aanglearning.principalapp.usergroup;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,7 +18,10 @@ import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.GroupDao;
 import com.aanglearning.principalapp.model.GroupUsers;
 import com.aanglearning.principalapp.model.Groups;
+import com.aanglearning.principalapp.model.UserGroup;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,6 +30,8 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout)
+    SwipeRefreshLayout refreshLayout;
     @BindView(R.id.progress)
     ProgressBar progressBar;
     @BindView(R.id.group_name_tv)
@@ -34,6 +41,7 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
 
     private UserGroupPresenter presenter;
     private Groups group;
+    private UserGroupAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +59,22 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
         memberView.setNestedScrollingEnabled(false);
         memberView.setItemAnimator(new DefaultItemAnimator());
         memberView.addItemDecoration(new DividerItemDecoration(this));
+
+        adapter = new UserGroupAdapter(new ArrayList<UserGroup>(0));
+        memberView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                ContextCompat.getColor(this, R.color.colorAccent),
+                ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        );
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.getUserGroup(group.getId());
+            }
+        });
     }
 
     @Override
@@ -83,13 +107,14 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
 
     @Override
     public void showError(String message) {
+        refreshLayout.setRefreshing(false);
         showSnackbar(message);
     }
 
     @Override
     public void showUserGroup(GroupUsers groupUsers) {
-        UserGroupAdapter adapter = new UserGroupAdapter(groupUsers.getUserGroupList());
-        memberView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
+        adapter.setDataSet(groupUsers.getUserGroupList());
     }
 
 }

@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.model.Attendance;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Section;
 import com.aanglearning.principalapp.model.Timetable;
@@ -31,6 +34,7 @@ import org.joda.time.LocalDate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,33 +46,25 @@ import butterknife.ButterKnife;
 
 public class AttendanceActivity extends AppCompatActivity implements AttendanceView,
         AdapterView.OnItemSelectedListener {
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+
+    @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.progress)
-    ProgressBar progressBar;
-    @BindView(R.id.spinner_class)
-    Spinner classSpinner;
-    @BindView(R.id.spinner_section)
-    Spinner sectionSpinner;
-    @BindView(R.id.date_tv)
-    TextView dateView;
-    @BindView(R.id.session_spinner)
-    Spinner sessionSpinner;
-    @BindView(R.id.session_layout)
-    LinearLayout sessionLayout;
-    @BindView(R.id.period_spinner)
-    Spinner periodSpinner;
-    @BindView(R.id.period_layout)
-    LinearLayout periodLayout;
-    @BindView(R.id.absentees_recycler_view)
-    RecyclerView absenteesRecycler;
-    @BindView(R.id.absentees_tv)
-    TextView absenteesTv;
+    @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.progress) ProgressBar progressBar;
+    @BindView(R.id.spinner_class) Spinner classSpinner;
+    @BindView(R.id.spinner_section) Spinner sectionSpinner;
+    @BindView(R.id.date_tv) TextView dateView;
+    @BindView(R.id.session_spinner) Spinner sessionSpinner;
+    @BindView(R.id.session_layout) LinearLayout sessionLayout;
+    @BindView(R.id.period_spinner) Spinner periodSpinner;
+    @BindView(R.id.period_layout) LinearLayout periodLayout;
+    @BindView(R.id.absentees_recycler_view) RecyclerView absenteesRecycler;
+    @BindView(R.id.absentees_tv) TextView absenteesTv;
 
     private AttendancePresenter presenter;
     private String attendanceDate;
+    private AttendanceAdapter attendanceAdapter;
 
     private String[] days = {"", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
@@ -89,7 +85,23 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         absenteesRecycler.setItemAnimator(new DefaultItemAnimator());
         absenteesRecycler.addItemDecoration(new DividerItemDecoration(this));
 
+        attendanceAdapter = new AttendanceAdapter(new ArrayList<Attendance>(0));
+        absenteesRecycler.setAdapter(attendanceAdapter);
+
         showSession();
+
+        refreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                ContextCompat.getColor(this, R.color.colorAccent),
+                ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        );
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+            }
+        });
     }
 
     @Override
@@ -120,6 +132,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
     @Override
     public void showError(String message) {
+        refreshLayout.setRefreshing(false);
         showSnackbar(message);
     }
 
@@ -161,13 +174,11 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
     @Override
     public void showAttendance(AttendanceSet attendanceSet) {
-        AttendanceAdapter attendanceAdapter = new AttendanceAdapter(attendanceSet.getAttendanceList());
-        absenteesRecycler.setAdapter(attendanceAdapter);
-        if (attendanceSet.getAttendanceList().size() == 0) {
+        refreshLayout.setRefreshing(false);
+        attendanceAdapter.setDataSet(attendanceSet.getAttendanceList());
+        if (attendanceSet.getAttendanceList().size() == 0)
             absenteesTv.setVisibility(View.GONE);
-        } else {
-            absenteesTv.setVisibility(View.VISIBLE);
-        }
+        else absenteesTv.setVisibility(View.VISIBLE);
     }
 
     @Override

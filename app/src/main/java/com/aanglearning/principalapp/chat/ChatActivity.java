@@ -178,7 +178,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
                     sendMessage("image", imgName);
                 } else {
                     hideProgress();
-                    //showSnackbar("Error in sending message");
+                    showSnackbar("Canceled Image Upload");
                 }
                 break;
             }

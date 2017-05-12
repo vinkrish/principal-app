@@ -1,12 +1,11 @@
 package com.aanglearning.principalapp.homework;
 
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,18 +46,14 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.progress)
-    ProgressBar progressBar;
-    @BindView(R.id.spinner_class)
-    Spinner classSpinner;
+    @BindView(R.id.refreshLayout)
+    SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.progress) ProgressBar progressBar;
+    @BindView(R.id.spinner_class) Spinner classSpinner;
     @BindView(R.id.spinner_section) Spinner sectionSpinner;
-    @BindView(R.id.date_tv)
-    TextView dateView;
-    @BindView(R.id.homework_recycler_view)
-    RecyclerView homeworkRecycler;
+    @BindView(R.id.date_tv) TextView dateView;
+    @BindView(R.id.homework_recycler_view) RecyclerView homeworkRecycler;
     @BindView(R.id.homework_tv) TextView homeworkTv;
-
-    ArrayList<Homework> homeworks = new ArrayList<>();
 
     private HomeworkPresenter presenter;
     private HomeworkAdapter homeworkAdapter;
@@ -80,10 +74,23 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         homeworkRecycler.setNestedScrollingEnabled(false);
         homeworkRecycler.setItemAnimator(new DefaultItemAnimator());
 
-        homeworkAdapter = new HomeworkAdapter(homeworks);
+        homeworkAdapter = new HomeworkAdapter(new ArrayList<Homework>(0));
         homeworkRecycler.setAdapter(homeworkAdapter);
 
         setDefaultDate();
+
+        refreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                ContextCompat.getColor(this, R.color.colorAccent),
+                ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        );
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+            }
+        });
     }
 
     @Override
@@ -166,6 +173,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
     @Override
     public void showError(String message) {
+        refreshLayout.setRefreshing(false);
         showSnackbar(message);
     }
 
@@ -189,17 +197,15 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
     @Override
     public void showHomeworks(List<Homework> hws) {
+        refreshLayout.setRefreshing(false);
+        List<Homework> homeworks = new ArrayList<>();
         for(Homework hw: hws) {
             if(hw.getId() != 0)
             homeworks.add(hw);
         }
         homeworkAdapter.setDataSet(homeworks);
-        if(homeworks.size() == 0) {
-            homeworkTv.setVisibility(View.GONE);
-        } else {
-            homeworkTv.setVisibility(View.VISIBLE);
-        }
-
+        if(homeworks.size() == 0) homeworkTv.setVisibility(View.GONE);
+        else homeworkTv.setVisibility(View.VISIBLE);
     }
 
     private void getHomework() {

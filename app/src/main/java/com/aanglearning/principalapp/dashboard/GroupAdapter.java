@@ -21,8 +21,8 @@ import butterknife.ButterKnife;
  * Created by Vinay on 02-04-2017.
  */
 
-public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
-    private final List<Groups> items;
+class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
+    private List<Groups> items;
     private final OnItemClickListener listener;
 
     ColorGenerator generator = ColorGenerator.MATERIAL;
@@ -39,6 +39,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     GroupAdapter(List<Groups> items, OnItemClickListener listener) {
         this.items = items;
         this.listener = listener;
+    }
+
+    void replaceData(List<Groups> items) {
+        this.items = items;
+        notifyDataSetChanged();
     }
 
     @Override

@@ -3,8 +3,9 @@ package com.aanglearning.principalapp.chathome;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import com.aanglearning.principalapp.newchat.NewChatActivity;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
 import com.aanglearning.principalapp.util.NetworkUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -30,12 +32,15 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout)
+    SwipeRefreshLayout refreshLayout;
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
     private ChatsPresenter presenter;
+    private ChatsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +49,6 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         presenter = new ChatsPresenterImpl(this, new ChatsInteractorImpl());
@@ -54,6 +58,21 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this));
 
+        adapter = new ChatsAdapter(new ArrayList<Chat>(0), mItemListener);
+        recyclerView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                ContextCompat.getColor(this, R.color.colorAccent),
+                ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        );
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.getChats(TeacherDao.getTeacher().getId());
+            }
+        });
     }
 
     @Override
@@ -92,22 +111,23 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
 
     @Override
     public void showError(String message) {
-        Snackbar errorSnackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG);
-        //errorSnackbar.setAction(R.string.retry, this);
-        errorSnackbar.show();
+        refreshLayout.setRefreshing(false);
+        showSnackbar(message);
     }
 
     @Override
     public void setGroups(List<Chat> chats) {
-        ChatsAdapter adapter = new ChatsAdapter(chats, new ChatsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Chat chat) {
-                Intent intent = new Intent(ChatsActivity.this, ChatActivity.class);
-                intent.putExtra("recipientId", chat.getStudentId());
-                startActivity(intent);
-            }
-        });
-        recyclerView.setAdapter(adapter);
+        refreshLayout.setRefreshing(false);
+        adapter.setDataSet(chats);
     }
+
+    ChatsAdapter.OnItemClickListener mItemListener = new ChatsAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClick(Chat chat) {
+            Intent intent = new Intent(ChatsActivity.this, ChatActivity.class);
+            intent.putExtra("recipientId", chat.getStudentId());
+            startActivity(intent);
+        }
+    };
 
 }
