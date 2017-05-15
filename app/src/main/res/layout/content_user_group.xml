@@ -9,66 +9,52 @@
     tools:context="com.aanglearning.principalapp.usergroup.UserGroupActivity"
     tools:showIn="@layout/activity_user_group">
 
-    <RelativeLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/myScrollingContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/default_white">
+        android:fillViewport="true">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/myScrollingContent"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:padding="10dp"
+                android:text="@string/group_name"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/group_name"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="@dimen/text_small"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/group_name_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:paddingLeft="@dimen/spacing_normal"
+                android:textColor="@color/primaryTextColor"
+                android:textSize="@dimen/text_xsmall" />
 
-                <TextView
-                    android:id="@+id/group_name_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    android:paddingLeft="@dimen/spacing_normal"
-                    android:textColor="@color/primaryTextColor"
-                    android:textSize="@dimen/text_xsmall" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/spacing_small"
+                android:text="@string/members"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/spacing_small"
-                    android:text="@string/members"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="@dimen/text_small"
-                    android:textStyle="bold" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/member_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/member_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+        </LinearLayout>
 
-            </LinearLayout>
-
-        </android.support.v4.widget.NestedScrollView>
-
-        <ProgressBar
-            android:id="@+id/progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="gone" />
-
-    </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
 
 </android.support.v4.widget.SwipeRefreshLayout>

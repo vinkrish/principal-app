@@ -28,16 +28,10 @@ import butterknife.ButterKnife;
 
 public class UserGroupActivity extends AppCompatActivity implements UserGroupView {
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.refreshLayout)
-    SwipeRefreshLayout refreshLayout;
-    @BindView(R.id.progress)
-    ProgressBar progressBar;
-    @BindView(R.id.group_name_tv)
-    TextView groupName;
-    @BindView(R.id.member_recycler_view)
-    RecyclerView memberView;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.group_name_tv) TextView groupName;
+    @BindView(R.id.member_recycler_view) RecyclerView memberView;
 
     private UserGroupPresenter presenter;
     private Groups group;
@@ -97,12 +91,12 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
 
     @Override
     public void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
+        refreshLayout.setRefreshing(true);
     }
 
     @Override
     public void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+        refreshLayout.setRefreshing(false);
     }
 
     @Override
