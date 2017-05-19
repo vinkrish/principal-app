@@ -3,9 +3,9 @@ package com.aanglearning.principalapp.sqlite;
 /**
  * Created by Vinay.
  */
- interface SqlConstant {
+interface SqlConstant {
 
-    String DATABASE_NAME = "project.db";
+    String DATABASE_NAME = "principal.db";
     int DATABASE_VERSION = 1;
 
     String CREATE_ATTENDANCE = "CREATE TABLE attendance (" +
@@ -170,15 +170,27 @@ package com.aanglearning.principalapp.sqlite;
             " IsActive INTEGER" +
             ")";
 
-   String CREATE_SERVICE = "CREATE TABLE service (" +
-           " Id INTEGER, " +
-           " SchoolId INTEGER, " +
-           " IsMessage TEXT, " +
-           " IsSms TEXT, " +
-           " IsChat TEXT, " +
-           " IsAttendance TEXT, " +
-           " IsAttendanceSms TEXT," +
-           " IsHomework TEXT, " +
-           " IsHomeworkSms TEXT" +
-           ")";
+    String CREATE_CHAT = "CREATE TABLE chat (" +
+            " Id INTEGER, " +
+            " StudentId INTEGER, " +
+            " StudentName TEXT, " +
+            " ClassName TEXT, " +
+            " SectionName TEXT, " +
+            " TeacherId INTEGER, " +
+            " TeacherName TEXT, " +
+            " CreatedBy INTEGER, " +
+            " CreatorRole TEXT" +
+            ")";
+
+    String CREATE_SERVICE = "CREATE TABLE service (" +
+            " Id INTEGER, " +
+            " SchoolId INTEGER, " +
+            " IsMessage TEXT, " +
+            " IsSms TEXT, " +
+            " IsChat TEXT, " +
+            " IsAttendance TEXT, " +
+            " IsAttendanceSms TEXT," +
+            " IsHomework TEXT, " +
+            " IsHomeworkSms TEXT" +
+            ")";
 }

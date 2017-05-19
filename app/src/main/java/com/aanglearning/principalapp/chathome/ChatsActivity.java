@@ -13,10 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.chat.ChatActivity;
+import com.aanglearning.principalapp.dao.ChatDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Chat;
 import com.aanglearning.principalapp.newchat.NewChatActivity;
@@ -70,6 +70,18 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
                 presenter.getChats(TeacherDao.getTeacher().getId());
             }
         });
+
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getChats(TeacherDao.getTeacher().getId());
+        } else {
+            List<Chat> chats = ChatDao.getChats();
+            if(chats.size() == 0) {
+                noChats.setVisibility(View.VISIBLE);
+            } else {
+                noChats.setVisibility(View.INVISIBLE);
+                adapter.setDataSet(chats);
+            }
+        }
     }
 
     @Override
@@ -119,8 +131,19 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
         } else {
             noChats.setVisibility(View.INVISIBLE);
             adapter.setDataSet(chats);
+            backupChats(chats);
         }
         refreshLayout.setRefreshing(false);
+    }
+
+    private void backupChats(final List<Chat> chats) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ChatDao.clear();
+                ChatDao.insertMany(chats);
+            }
+        }).start();
     }
 
     ChatsAdapter.OnItemClickListener mItemListener = new ChatsAdapter.OnItemClickListener() {
