@@ -47,6 +47,13 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            group = new Groups();
+            group.setId(extras.getLong("groupId"));
+            group.setName(extras.getString("groupName"));
+        }
+
         presenter = new UserGroupPresenterImpl(this, new UserGroupInteractorImpl());
 
         memberView.setLayoutManager(new LinearLayoutManager(this));
@@ -74,7 +81,6 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
     @Override
     public void onResume() {
         super.onResume();
-        group = GroupDao.getGroup();
         groupName.setText(group.getName());
         presenter.getUserGroup(group.getId());
     }

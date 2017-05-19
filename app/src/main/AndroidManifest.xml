@@ -37,6 +37,7 @@
         <activity
             android:name=".attendance.AttendanceActivity"
             android:label="@string/title_activity_attendance"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
@@ -46,6 +47,7 @@
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
@@ -55,6 +57,7 @@
         <activity
             android:name=".chathome.ChatsActivity"
             android:label="@string/title_activity_chats"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
@@ -64,6 +67,7 @@
         <activity
             android:name=".homework.HomeworkActivity"
             android:label="@string/title_activity_homework"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
@@ -73,6 +77,7 @@
         <activity
             android:name=".messagegroup.MessageActivity"
             android:label="@string/title_activity_message"
+            android:launchMode="singleTop"
             android:theme="@style/NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -81,6 +86,7 @@
         <activity
             android:name=".usergroup.UserGroupActivity"
             android:label="@string/title_activity_user_group"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
@@ -90,13 +96,16 @@
         <activity
             android:name=".newchat.NewChatActivity"
             android:label="@string/title_activity_new_chat"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-        <activity android:name=".util.ImageUploadActivity"></activity>
+        <activity
+            android:name=".util.ImageUploadActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

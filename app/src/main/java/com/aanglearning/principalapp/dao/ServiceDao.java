@@ -1,6 +1,7 @@
 package com.aanglearning.principalapp.dao;
 
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
@@ -28,7 +29,7 @@ public class ServiceDao {
             stmt.bindString(7, Boolean.toString(service.getIsAttendanceSms()));
             stmt.bindString(8, Boolean.toString(service.getIsHomework()));
             stmt.bindString(9, Boolean.toString(service.getIsHomeworkSms()));
-            stmt.execute();
+            stmt.executeInsert();
             stmt.clearBindings();
         } catch (Exception e) {
             db.endTransaction();
@@ -61,19 +62,12 @@ public class ServiceDao {
     }
 
     public static int clear() {
-        String sql = "delete from service";
-        SQLiteDatabase db = AppGlobal.getSqlDbHelper().getWritableDatabase();
-        db.beginTransactionNonExclusive();
-        SQLiteStatement stmt = db.compileStatement(sql);
+        SQLiteDatabase sqliteDb = AppGlobal.getSqlDbHelper().getWritableDatabase();
         try {
-            stmt.execute();
-            stmt.clearBindings();
-        } catch (Exception e) {
-            db.endTransaction();
+            sqliteDb.execSQL("delete from service");
+        } catch(SQLException e) {
             return 0;
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
         return 1;
     }
 }

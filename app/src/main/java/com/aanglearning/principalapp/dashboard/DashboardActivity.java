@@ -1,6 +1,7 @@
 package com.aanglearning.principalapp.dashboard;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -10,7 +11,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
@@ -34,6 +34,7 @@ import com.aanglearning.principalapp.messagegroup.MessageActivity;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
+import com.aanglearning.principalapp.util.NetworkUtil;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
     @BindView(R.id.navigation_view) NavigationView navigationView;
     @BindView(R.id.drawer) DrawerLayout drawerLayout;
+    @BindView(R.id.noGroups) LinearLayout noGroups;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
 
     private GroupPresenter presenter;
@@ -111,12 +113,23 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 presenter.getGroups(TeacherDao.getTeacher().getSchoolId());
             }
         });
+
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getGroups(TeacherDao.getTeacher().getSchoolId());
+        } else {
+            List<Groups> groups = GroupDao.getGroups();
+            if(groups.size() == 0) {
+                noGroups.setVisibility(View.VISIBLE);
+            } else {
+                noGroups.setVisibility(View.INVISIBLE);
+                adapter.replaceData(groups);
+            }
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        presenter.getGroups(TeacherDao.getTeacher().getSchoolId());
     }
 
     @Override
@@ -174,8 +187,24 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
     @Override
     public void setGroups(List<Groups> groups) {
+        if(groups.size() == 0) {
+            noGroups.setVisibility(View.VISIBLE);
+        } else {
+            noGroups.setVisibility(View.INVISIBLE);
+            adapter.replaceData(groups);
+            backupGroups(groups);
+        }
         refreshLayout.setRefreshing(false);
-        adapter.replaceData(groups);
+    }
+
+    private void backupGroups(final List<Groups> groups) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                GroupDao.clear();
+                GroupDao.insertMany(groups);
+            }
+        }).start();
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -214,9 +243,10 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     GroupAdapter.OnItemClickListener mItemListener = new GroupAdapter.OnItemClickListener() {
         @Override
         public void onItemClick(Groups group) {
-            GroupDao.clear();
-            GroupDao.insert(group);
-            startActivity(new Intent(DashboardActivity.this, MessageActivity.class));
+            Intent intent = new Intent(DashboardActivity.this, MessageActivity.class);
+            intent.putExtra("groupId", group.getId());
+            intent.putExtra("groupName", group.getName());
+            startActivity(intent);
         }
     };
 }

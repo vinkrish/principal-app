@@ -168,7 +168,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             });
             //sharedImage.setImageResource(R.drawable.books);
             Picasso.with(mContext)
-                    .load(message.getImageUrl())
+                    .load("https://s3.ap-south-1.amazonaws.com/aang-solutions/" + message.getImageUrl())
                     .placeholder(R.drawable.splash_image)
                     .error(R.drawable.splash_image)
                     .into(sharedImage);
