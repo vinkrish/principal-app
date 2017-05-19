@@ -2,7 +2,7 @@ package com.aanglearning.principalapp.messagegroup;
 
 import com.aanglearning.principalapp.model.Message;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Vinay on 07-04-2017.
@@ -14,9 +14,9 @@ interface MessageInteractor {
 
         void onMessageSaved(Message message);
 
-        void onMessageReceived(ArrayList<Message> messages);
+        void onMessageReceived(List<Message> messages);
 
-        void onFollowupMessagesReceived(ArrayList<Message> messages);
+        void onFollowupMessagesReceived(List<Message> messages);
     }
 
     void saveMessage(Message message, MessageInteractor.OnFinishedListener listener);
