@@ -11,7 +11,7 @@ interface ChatPresenter {
 
     void getMessages(String senderRole, long senderId, String recipientRole, long recipeintId);
 
-    void getFollowupMessages(String senderRole, long senderId, String recipientRole, long recipeintId, long messageId);
+    void getFollowupMessages(String senderRole, long senderId, String recipientRole, long recipientId, long messageId);
 
     void onDestroy();
 }
