@@ -7,6 +7,7 @@
     <string name="homework">Homework</string>
     <string name="no_chats">No Chats!</string>
     <string name="chat">Chat</string>
+    <string name="no_members">No members!</string>
     <string name="enter_message">Enter msg</string>
     <string name="msg_if_any">Message if any..</string>
     <string name="upload_image">Upload Image</string>

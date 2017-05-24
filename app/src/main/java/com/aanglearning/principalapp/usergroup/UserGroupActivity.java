@@ -11,17 +11,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.GroupDao;
+import com.aanglearning.principalapp.dao.UserGroupDao;
 import com.aanglearning.principalapp.model.GroupUsers;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.UserGroup;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
+import com.aanglearning.principalapp.util.NetworkUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,6 +33,7 @@ import butterknife.ButterKnife;
 public class UserGroupActivity extends AppCompatActivity implements UserGroupView {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.no_members) LinearLayout noMembers;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
     @BindView(R.id.group_name_tv) TextView groupName;
     @BindView(R.id.member_recycler_view) RecyclerView memberView;
@@ -52,6 +57,8 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
             group = new Groups();
             group.setId(extras.getLong("groupId"));
             group.setName(extras.getString("groupName"));
+            groupName.setText(group.getName());
+            groupName.setText(group.getName());
         }
 
         presenter = new UserGroupPresenterImpl(this, new UserGroupInteractorImpl());
@@ -76,13 +83,18 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
                 presenter.getUserGroup(group.getId());
             }
         });
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        groupName.setText(group.getName());
-        presenter.getUserGroup(group.getId());
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getUserGroup(group.getId());
+        } else {
+            List<UserGroup> usrGroups = UserGroupDao.getUserGroups(group.getId());
+            if(usrGroups.size() == 0) {
+                noMembers.setVisibility(View.VISIBLE);
+            } else {
+                noMembers.setVisibility(View.GONE);
+                adapter.setDataSet(usrGroups);
+            }
+        }
     }
 
     @Override
@@ -113,8 +125,24 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
 
     @Override
     public void showUserGroup(GroupUsers groupUsers) {
+        if(groupUsers.getUserGroupList().size() == 0) {
+            noMembers.setVisibility(View.VISIBLE);
+        } else {
+            noMembers.setVisibility(View.GONE);
+            adapter.setDataSet(groupUsers.getUserGroupList());
+            backupUserGroup(groupUsers.getUserGroupList());
+        }
         refreshLayout.setRefreshing(false);
-        adapter.setDataSet(groupUsers.getUserGroupList());
+    }
+
+    private void backupUserGroup(final List<UserGroup> userGroupList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UserGroupDao.clear(group.getId());
+                UserGroupDao.insert(userGroupList);
+            }
+        }).start();
     }
 
 }

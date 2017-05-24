@@ -207,4 +207,13 @@ interface SqlConstant {
             " IsHomework TEXT, " +
             " IsHomeworkSms TEXT" +
             ")";
+
+    String CREATE_USER_GROUP = "CREATE TABLE user_group (" +
+            " Id INTEGER, " +
+            " UserId INTEGER, " +
+            " Name TEXT, " +
+            " Role TEXT, " +
+            " GroupId INTEGER, " +
+            " IsActive TEXT" +
+            ")";
 }
