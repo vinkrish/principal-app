@@ -19,8 +19,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ApiClient {
-    private static final String BASE_URL = "http://192.168.1.3:8080/guldu/webapi/";
-    //private static final String BASE_URL = "http://ec2-34-210-168-143.us-west-2.compute.amazonaws.com/webapi/";
+    //private static final String BASE_URL = "http://192.168.1.3:8080/guldu/webapi/";
+    private static final String BASE_URL = "http://ec2-34-210-168-143.us-west-2.compute.amazonaws.com/webapi/";
     private static Retrofit authRetrofit = null;
     private static Retrofit retrofit = null;
 
@@ -60,6 +60,18 @@ public class ApiClient {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request original = chain.request();
+                        Request.Builder requestBuilder = original.newBuilder()
+                                .header("Authorization",
+                                        "Bearer " + "defaultToken")
+                                .header("Content-Type", "application/json");
+                        Request request = requestBuilder.build();
+                        return chain.proceed(request);
+                    }
+                })
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
