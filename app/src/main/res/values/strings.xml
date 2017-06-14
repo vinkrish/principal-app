@@ -5,6 +5,7 @@
     <string name="groups">Groups</string>
     <string name="attendance">Attendance</string>
     <string name="homework">Homework</string>
+    <string name="no_timetable">No Timetable</string>
     <string name="no_chats">No Chats!</string>
     <string name="chat">Chat</string>
     <string name="no_members">No members!</string>
@@ -43,6 +44,7 @@
     <string name="absentees">Absentees</string>
 
     <string name="logout">Logout</string>
+    <string name="refresh">Refresh</string>
     <string name="title_activity_attendance">Attendance</string>
     <string name="title_activity_chat">Chat</string>
     <string name="title_activity_chats">Chat</string>

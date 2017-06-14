@@ -10,11 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -25,9 +27,11 @@ import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.dao.TimetableDao;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Section;
 import com.aanglearning.principalapp.model.Timetable;
+import com.aanglearning.principalapp.util.NetworkUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,6 +53,8 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
     @BindView(R.id.spinner_section) Spinner sectionSpinner;
     @BindView(R.id.tableLayout)
     FrameLayout tableLayout;
+    @BindView(R.id.noTimetable)
+    LinearLayout noTimetable;
 
     LinkedHashMap<String, List<Timetable>> timetableMap = new LinkedHashMap<>();
     private String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -68,13 +74,16 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
         presenter = new TimetablePresenterImpl(this, new TimetableInteractorImpl());
 
         presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
+    }
+
+    public void loadData(MenuItem item) {
+        presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
     }
 
     private void showSnackbar(String message) {
@@ -117,17 +126,33 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
 
     @Override
     public void showTimetable(List<Timetable> timetableList) {
-        for(String day: days) {
-            List<Timetable> timtableList = new ArrayList<>();
-            for(Timetable timetable: timetableList) {
-                if(timetable.getDayOfWeek().equals(day)) {
-                    timtableList.add(timetable);
-                    if(timetable.getPeriodNo() > noOfPeriods) noOfPeriods = timetable.getPeriodNo();
+        if(timetableList.size() == 0) {
+            noTimetable.setVisibility(View.VISIBLE);
+        } else {
+            noTimetable.setVisibility(View.INVISIBLE);
+            for(String day: days) {
+                List<Timetable> timtableList = new ArrayList<>();
+                for(Timetable timetable: timetableList) {
+                    if(timetable.getDayOfWeek().equals(day)) {
+                        timtableList.add(timetable);
+                        if(timetable.getPeriodNo() > noOfPeriods) noOfPeriods = timetable.getPeriodNo();
+                    }
                 }
+                timetableMap.put(day, timtableList);
             }
-            timetableMap.put(day, timtableList);
+            tableLayout.addView(new TableMainLayout(this));
+            backupTimetable(timetableList);
         }
-        tableLayout.addView(new TableMainLayout(this));
+    }
+
+    private void backupTimetable(final List<Timetable> timetableList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TimetableDao.delete(((Section) sectionSpinner.getSelectedItem()).getId());
+                TimetableDao.insert(timetableList);
+            }
+        }).start();
     }
 
     @Override
@@ -137,7 +162,7 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
                 presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
                 break;
             case R.id.spinner_section:
-                presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
+                getTimetable();
                 break;
             default:
                 break;
@@ -147,6 +172,30 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private void getTimetable() {
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
+        } else {
+            List<Timetable> timetableList = TimetableDao.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
+            if(timetableList.size() == 0) {
+                noTimetable.setVisibility(View.VISIBLE);
+            } else {
+                noTimetable.setVisibility(View.INVISIBLE);
+                for(String day: days) {
+                    List<Timetable> timtableList = new ArrayList<>();
+                    for(Timetable timetable: timetableList) {
+                        if(timetable.getDayOfWeek().equals(day)) {
+                            timtableList.add(timetable);
+                            if(timetable.getPeriodNo() > noOfPeriods) noOfPeriods = timetable.getPeriodNo();
+                        }
+                    }
+                    timetableMap.put(day, timtableList);
+                }
+                tableLayout.addView(new TableMainLayout(this));
+            }
+        }
     }
 
     public class TableMainLayout extends RelativeLayout {

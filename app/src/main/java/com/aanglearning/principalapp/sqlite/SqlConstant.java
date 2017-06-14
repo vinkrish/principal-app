@@ -154,6 +154,8 @@ interface SqlConstant {
             "  DayOfWeek TEXT," +
             "  PeriodNo INTEGER," +
             "  SubjectId INTEGER," +
+            "  SubjectName TEXT," +
+            "  TeacherName TEXT," +
             "  TimingFrom time," +
             "  TimingTo time" +
             ")";
