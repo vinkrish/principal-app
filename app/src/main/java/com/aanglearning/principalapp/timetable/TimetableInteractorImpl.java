@@ -1,14 +1,13 @@
-package com.aanglearning.principalapp.homework;
+package com.aanglearning.principalapp.timetable;
 
 import com.aanglearning.principalapp.App;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.api.ApiClient;
 import com.aanglearning.principalapp.api.PrincipalApi;
 import com.aanglearning.principalapp.model.Clas;
-import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Section;
+import com.aanglearning.principalapp.model.Timetable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -16,10 +15,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Created by Vinay on 21-04-2017.
+ * Created by Vinay on 13-06-2017.
  */
 
-class HomeworkInteractorImpl implements HomeworkInteractor {
+class TimetableInteractorImpl implements TimetableInteractor {
 
     @Override
     public void getClassList(long schoolId, final OnFinishedListener listener) {
@@ -64,22 +63,22 @@ class HomeworkInteractorImpl implements HomeworkInteractor {
     }
 
     @Override
-    public void getHomework(long sectionId, String date, final OnFinishedListener listener) {
+    public void getTimetable(long sectionId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Homework>> classList = api.getHomework(sectionId, date);
-        classList.enqueue(new Callback<List<Homework>>() {
+        Call<List<Timetable>> attendanceList = api.getTimetable(sectionId);
+        attendanceList.enqueue(new Callback<List<Timetable>>() {
             @Override
-            public void onResponse(Call<List<Homework>> call, Response<List<Homework>> response) {
+            public void onResponse(Call<List<Timetable>> call, Response<List<Timetable>> response) {
                 if(response.isSuccessful()) {
-                    listener.onHomeworkReceived(response.body());
+                    listener.onTimetableReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Homework>> call, Throwable t) {
+            public void onFailure(Call<List<Timetable>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
             }
         });

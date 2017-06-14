@@ -1,23 +1,20 @@
-package com.aanglearning.principalapp.homework;
+package com.aanglearning.principalapp.timetable;
 
 import com.aanglearning.principalapp.model.Clas;
-import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Section;
+import com.aanglearning.principalapp.model.Timetable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Vinay on 21-04-2017.
+ * Created by Vinay on 13-06-2017.
  */
 
-class HomeworkPresenterImpl implements HomeworkPresenter,
-        HomeworkInteractorImpl.OnFinishedListener {
+class TimetablePresenterImpl implements TimetablePresenter, TimetableInteractor.OnFinishedListener {
+    private TimetableView mView;
+    private TimetableInteractor mInteractor;
 
-    private HomeworkView mView;
-    private HomeworkInteractor mInteractor;
-
-    HomeworkPresenterImpl(HomeworkView view, HomeworkInteractor interactor) {
+    TimetablePresenterImpl(TimetableView view, TimetableInteractor interactor) {
         mView = view;
         mInteractor = interactor;
     }
@@ -39,21 +36,23 @@ class HomeworkPresenterImpl implements HomeworkPresenter,
     }
 
     @Override
-    public void getHomework(long sectionId, String date) {
-        if (mView != null) {
+    public void getTimetable(long sectionId) {
+        if(mView != null) {
             mView.showProgress();
-            mInteractor.getHomework(sectionId, date, this);
+            mInteractor.getTimetable(sectionId, this);
         }
     }
 
     @Override
     public void onDestroy() {
-        mView = null;
+        if(mView != null) {
+            mView = null;
+        }
     }
 
     @Override
     public void onError(String message) {
-        if (mView != null) {
+        if(mView != null) {
             mView.hideProgress();
             mView.showError(message);
         }
@@ -76,11 +75,10 @@ class HomeworkPresenterImpl implements HomeworkPresenter,
     }
 
     @Override
-    public void onHomeworkReceived(List<Homework> homeworks) {
-        if (mView != null) {
-            mView.showHomeworks(homeworks);
+    public void onTimetableReceived(List<Timetable> timetableList) {
+        if(mView != null) {
+            mView.showTimetable(timetableList);
             mView.hideProgress();
         }
     }
-
 }

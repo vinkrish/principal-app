@@ -117,4 +117,9 @@ public interface PrincipalApi {
     Call<List<Homework>> getHomework(@Path("sectionId") long sectionId,
                                      @Path("homeworkDate") String homeworkDate);
 
+    //Timetable API
+
+    @GET("app/timetable/section/{sectionId}")
+    Call<List<Timetable>> getTimetable(@Path("sectionId") long sectionId);
+
 }

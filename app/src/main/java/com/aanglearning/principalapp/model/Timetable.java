@@ -6,6 +6,8 @@ public class Timetable {
     private String dayOfWeek;
     private int periodNo;
     private long subjectId;
+    private String subjectName;
+    private String teacherName;
     private String timingFrom;
     private String timingTo;
 
@@ -47,6 +49,22 @@ public class Timetable {
 
     public void setSubjectId(long subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
     }
 
     public String getTimingFrom() {

@@ -104,7 +104,16 @@
         </activity>
         <activity
             android:name=".util.ImageUploadActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".timetable.TimetableActivity"
+            android:label="@string/title_activity_timetable"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dashboard.DashboardActivity" />
+        </activity>
     </application>
 
 </manifest>

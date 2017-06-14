@@ -76,6 +76,8 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
         setDefaultDate();
 
+        presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+
         refreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
                 ContextCompat.getColor(this, R.color.colorAccent),
@@ -88,12 +90,6 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
                 presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
     }
 
     @Override

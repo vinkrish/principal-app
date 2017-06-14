@@ -1,16 +1,16 @@
-package com.aanglearning.principalapp.homework;
+package com.aanglearning.principalapp.timetable;
 
 import com.aanglearning.principalapp.model.Clas;
-import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Section;
+import com.aanglearning.principalapp.model.Timetable;
 
 import java.util.List;
 
 /**
- * Created by Vinay on 21-04-2017.
+ * Created by Vinay on 13-06-2017.
  */
 
-interface HomeworkView {
+interface TimetableView {
     void showProgress();
 
     void hideProgress();
@@ -21,5 +21,5 @@ interface HomeworkView {
 
     void showSection(List<Section> sectionList);
 
-    void showHomeworks(List<Homework> homeworks);
+    void showTimetable(List<Timetable> timetableList);
 }
