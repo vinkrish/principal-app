@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,7 +40,8 @@ import java.net.URISyntaxException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ImageUploadActivity extends AppCompatActivity {
+public class ImageUploadActivity extends AppCompatActivity implements
+        ActivityCompat.OnRequestPermissionsResultCallback{
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
     @BindView(R.id.image_view)
@@ -49,10 +52,11 @@ public class ImageUploadActivity extends AppCompatActivity {
     EditText newMsg;
 
     private static final String TAG = "ImageUploadActivity";
-    private static final int READ_STORAGE_PERMISSION = 4000;
     private String imagePath;
     private String imageName;
     private TransferUtility transferUtility;
+
+    private static final int WRITE_STORAGE_PERMISSION = 666;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,16 @@ public class ImageUploadActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
         setResult(Activity.RESULT_OK, new Intent());
         finish();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            imagePicker();
+        } else {
+            showSnackbar("Permission has been denied");
+        }
     }
 
     private void showSnackbar(String message) {
@@ -87,13 +101,7 @@ public class ImageUploadActivity extends AppCompatActivity {
     }
 
     public void chooseImage (View view) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!PermissionUtil.checkPermissionForExternalStorage(ImageUploadActivity.this)) {
-                PermissionUtil.requestStoragePermission(ImageUploadActivity.this, READ_STORAGE_PERMISSION);
-            } else {
-                imagePicker();
-            }
-        }else{
+        if(PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
             imagePicker();
         }
     }

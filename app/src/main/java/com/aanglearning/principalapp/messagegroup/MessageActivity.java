@@ -1,9 +1,11 @@
 package com.aanglearning.principalapp.messagegroup;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.usergroup.UserGroupActivity;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.NetworkUtil;
+import com.aanglearning.principalapp.util.PermissionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +31,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MessageActivity extends AppCompatActivity implements MessageView{
+public class MessageActivity extends AppCompatActivity implements MessageView,
+        ActivityCompat.OnRequestPermissionsResultCallback{
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
@@ -39,6 +43,8 @@ public class MessageActivity extends AppCompatActivity implements MessageView{
     private Groups group;
     private MessageAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
+
+    private static final int WRITE_STORAGE_PERMISSION = 666;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +81,9 @@ public class MessageActivity extends AppCompatActivity implements MessageView{
         });
 
         if(NetworkUtil.isNetworkAvailable(this)) {
-            presenter.getMessages(group.getId());
+            if(PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
+                presenter.getMessages(group.getId());
+            }
         } else {
             List<Message> messages = MessageDao.getGroupMessages(group.getId());
             adapter.setDataSet(messages);
@@ -86,6 +94,16 @@ public class MessageActivity extends AppCompatActivity implements MessageView{
     public void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            presenter.getMessages(group.getId());
+        } else {
+            showSnackbar("Permission has been denied");
+        }
     }
 
     private void setupRecyclerView() {
