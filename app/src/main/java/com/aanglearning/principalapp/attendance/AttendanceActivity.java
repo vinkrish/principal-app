@@ -21,7 +21,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.dao.AttendanceDao;
+import com.aanglearning.principalapp.dao.ClassDao;
+import com.aanglearning.principalapp.dao.SectionDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.dao.TimetableDao;
 import com.aanglearning.principalapp.model.Attendance;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Section;
@@ -29,6 +33,7 @@ import com.aanglearning.principalapp.model.Timetable;
 import com.aanglearning.principalapp.util.DatePickerFragment;
 import com.aanglearning.principalapp.util.DateUtil;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
+import com.aanglearning.principalapp.util.NetworkUtil;
 
 import org.joda.time.LocalDate;
 
@@ -59,7 +64,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     @BindView(R.id.period_spinner) Spinner periodSpinner;
     @BindView(R.id.period_layout) LinearLayout periodLayout;
     @BindView(R.id.absentees_recycler_view) RecyclerView absenteesRecycler;
-    @BindView(R.id.absentees_tv) TextView absenteesTv;
+    @BindView(R.id.no_attendance) LinearLayout noAttendance;
 
     private AttendancePresenter presenter;
     private String attendanceDate;
@@ -89,6 +94,17 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
         showSession();
 
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+        } else {
+            List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
+            ArrayAdapter<Clas> adapter = new
+                    ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            classSpinner.setAdapter(adapter);
+            classSpinner.setOnItemSelectedListener(this);
+        }
+
         refreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
                 ContextCompat.getColor(this, R.color.colorAccent),
@@ -101,12 +117,6 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
                 presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
     }
 
     @Override
@@ -142,6 +152,17 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         classSpinner.setAdapter(adapter);
         classSpinner.setOnItemSelectedListener(this);
+        backupClass(clasList);
+    }
+
+    private void backupClass(final List<Clas> classList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ClassDao.delete(TeacherDao.getTeacher().getSchoolId());
+                ClassDao.insert(classList);
+            }
+        }).start();
     }
 
     @Override
@@ -151,6 +172,17 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sectionSpinner.setAdapter(adapter);
         sectionSpinner.setOnItemSelectedListener(this);
+        backupSection(sectionList);
+    }
+
+    private void backupSection(final List<Section> sectionList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SectionDao.delete(((Clas) classSpinner.getSelectedItem()).getId());
+                SectionDao.insert(sectionList);
+            }
+        }).start();
     }
 
     private void showSession() {
@@ -174,28 +206,80 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     @Override
     public void showAttendance(AttendanceSet attendanceSet) {
         refreshLayout.setRefreshing(false);
-        attendanceAdapter.setDataSet(attendanceSet.getAttendanceList());
-        if (attendanceSet.getAttendanceList().size() == 0)
-            absenteesTv.setVisibility(View.GONE);
-        else absenteesTv.setVisibility(View.VISIBLE);
+        if (attendanceSet.getAttendanceList().size() == 0) {
+            noAttendance.setVisibility(View.VISIBLE);
+        } else {
+            noAttendance.setVisibility(View.INVISIBLE);
+            attendanceAdapter.setDataSet(attendanceSet.getAttendanceList());
+            backupAttendance(attendanceSet.getAttendanceList());
+        }
+    }
+
+    private void backupAttendance(final List<Attendance> attendanceList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String attendanceType = ((Clas) classSpinner.getSelectedItem()).getAttendanceType();
+                switch (attendanceType) {
+                    case "Daily":
+                        AttendanceDao.delete(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate, 0);
+                        break;
+                    case "Session":
+                        AttendanceDao.delete(((Section) sectionSpinner.getSelectedItem()).getId(),
+                                attendanceDate,  sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                        break;
+                    case "Period":
+                        AttendanceDao.delete(((Section) sectionSpinner.getSelectedItem()).getId(),
+                                attendanceDate, ((Timetable) periodSpinner.getSelectedItem()).getPeriodNo());
+                    break;
+                    default:
+                        break;
+                }
+                AttendanceDao.insert(attendanceList);
+            }
+        }).start();
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
         switch (parent.getId()) {
             case R.id.spinner_class:
-                presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+                } else {
+                    List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+                    ArrayAdapter<Section> adapter = new
+                            ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    sectionSpinner.setAdapter(adapter);
+                    sessionSpinner.setOnItemSelectedListener(this);
+                }
                 break;
             case R.id.spinner_section:
                 getAttendance();
                 break;
             case R.id.session_spinner:
-                presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
-                        sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(),
+                            attendanceDate, sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                } else {
+                    List<Attendance> attendanceList = AttendanceDao.getAttendance(
+                            ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
+                            sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                    viewAttendance(attendanceList);
+                }
                 break;
             case R.id.period_spinner:
-                presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
-                        ((Timetable) periodSpinner.getSelectedItem()).getPeriodNo());
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
+                            ((Timetable) periodSpinner.getSelectedItem()).getPeriodNo());
+                } else {
+                    List<Attendance> attendanceList = AttendanceDao.getAttendance(
+                            ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
+                            ((Timetable) periodSpinner.getSelectedItem()).getPeriodNo());
+                    viewAttendance(attendanceList);
+                }
+
                 break;
             default:
                 break;
@@ -268,22 +352,54 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         String attendanceType = ((Clas) classSpinner.getSelectedItem()).getAttendanceType();
         switch (attendanceType) {
             case "Daily":
-                presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate, 0);
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate, 0);
+                } else {
+                    List<Attendance> attendanceList = AttendanceDao.getAttendance(
+                            ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate, 0);
+                    viewAttendance(attendanceList);
+                }
                 break;
             case "Session":
                 periodLayout.setVisibility(View.GONE);
                 sessionLayout.setVisibility(View.VISIBLE);
-                presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(),
-                        attendanceDate, sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getAttendance(((Section) sectionSpinner.getSelectedItem()).getId(),
+                            attendanceDate, sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                } else {
+                    List<Attendance> attendanceList = AttendanceDao.getAttendance(
+                            ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
+                            sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                    viewAttendance(attendanceList);
+                }
                 break;
             case "Period":
                 sessionLayout.setVisibility(View.GONE);
                 periodLayout.setVisibility(View.VISIBLE);
-                presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
-                        days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
+                            days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
+                } else {
+                    List<Timetable> timetableList = TimetableDao.getDayTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
+                            days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
+                    ArrayAdapter<Timetable> adapter = new
+                            ArrayAdapter<>(this, android.R.layout.simple_spinner_item, timetableList);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    periodSpinner.setAdapter(adapter);
+                    periodSpinner.setOnItemSelectedListener(this);
+                }
                 break;
             default:
                 break;
+        }
+    }
+
+    private void viewAttendance(List<Attendance> attendanceList) {
+        if (attendanceList.size() == 0) {
+            noAttendance.setVisibility(View.VISIBLE);
+        } else {
+            noAttendance.setVisibility(View.INVISIBLE);
+            attendanceAdapter.setDataSet(attendanceList);
         }
     }
 

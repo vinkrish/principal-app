@@ -5,6 +5,8 @@
     <string name="groups">Groups</string>
     <string name="attendance">Attendance</string>
     <string name="homework">Homework</string>
+    <string name="no_homework">No homework!</string>
+    <string name="no_attendance">No absent record!</string>
     <string name="no_timetable">No Timetable</string>
     <string name="no_chats">No Chats!</string>
     <string name="chat">Chat</string>

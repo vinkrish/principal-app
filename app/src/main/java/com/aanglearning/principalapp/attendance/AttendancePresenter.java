@@ -4,7 +4,7 @@ package com.aanglearning.principalapp.attendance;
  * Created by Vinay on 21-04-2017.
  */
 
-public interface AttendancePresenter {
+interface AttendancePresenter {
     void getClassList(long schoolId);
 
     void getSectionList(long classId);

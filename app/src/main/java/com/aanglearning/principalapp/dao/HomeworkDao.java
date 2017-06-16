@@ -78,10 +78,11 @@ public class HomeworkDao {
         return date;
     }
 
-    public static int delete(String homeworkDate) {
+    public static int delete(long sectionId, String homeworkDate) {
         SQLiteDatabase sqliteDb = AppGlobal.getSqlDbHelper().getWritableDatabase();
         try {
-            sqliteDb.execSQL("delete from homework where HomeworkDate = '" + homeworkDate + "'");
+            sqliteDb.execSQL("delete from homework where SectionId = " + sectionId +
+                    " and HomeworkDate = '" + homeworkDate + "'");
         } catch(SQLException e) {
             return 0;
         }

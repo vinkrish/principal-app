@@ -68,6 +68,30 @@ public class TimetableDao {
         return timetableList;
     }
 
+    public static List<Timetable> getDayTimetable(long sectionId, String day) {
+        List<Timetable> timetableList = new ArrayList<>();
+        SQLiteDatabase sqliteDatabase = AppGlobal.getSqlDbHelper().getReadableDatabase();
+        Cursor c = sqliteDatabase.rawQuery("select * from timetable where " +
+                "SectionId = " + sectionId + " and DayOfWeek = '" + day + "'", null);
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            Timetable timetable = new Timetable();
+            timetable.setId(c.getLong(c.getColumnIndex("Id")));
+            timetable.setSectionId(c.getLong(c.getColumnIndex("SectionId")));
+            timetable.setDayOfWeek(c.getString(c.getColumnIndex("DayOfWeek")));
+            timetable.setPeriodNo(c.getInt(c.getColumnIndex("PeriodNo")));
+            timetable.setSubjectId(c.getLong(c.getColumnIndex("SubjectId")));
+            timetable.setSubjectName(c.getString(c.getColumnIndex("SubjectName")));
+            timetable.setTeacherName(c.getString(c.getColumnIndex("TeacherName")));
+            timetable.setTimingFrom(c.getString(c.getColumnIndex("TimingFrom")));
+            timetable.setTimingTo(c.getString(c.getColumnIndex("TimingTo")));
+            timetableList.add(timetable);
+            c.moveToNext();
+        }
+        c.close();
+        return timetableList;
+    }
+
     public static int delete(long sectionId) {
         SQLiteDatabase sqliteDb = AppGlobal.getSqlDbHelper().getWritableDatabase();
         try {
