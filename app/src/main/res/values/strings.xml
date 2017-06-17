@@ -25,6 +25,9 @@
     <string name="change">Change</string>
     <string name="future_date">Selected date can\'t be future to present day</string>
 
+    <string name="from">From :</string>
+    <string name="created_at">Created at :</string>
+
     <string name="network_error">A network error has occurred.</string>
     <string name="request_error">Connection timed out.</string>
     <string name="retry">Retry</string>
