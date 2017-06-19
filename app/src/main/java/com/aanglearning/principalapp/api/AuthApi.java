@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.api;
 
+import com.aanglearning.principalapp.model.Authorization;
 import com.aanglearning.principalapp.model.CommonResponse;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
@@ -22,5 +23,9 @@ public interface AuthApi {
     @Headers("content-type: application/json")
     @POST("teacher/principal/newPassword")
     Call<CommonResponse> newPassword(@Body String updatedPassword);
+
+    @Headers("content-type: application/json")
+    @POST("authorization/fcm")
+    Call<Void> updateFcmToken(@Body Authorization authorization);
 
 }

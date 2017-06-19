@@ -9,6 +9,7 @@ import com.aanglearning.principalapp.api.ErrorUtils;
 import com.aanglearning.principalapp.model.CommonResponse;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
+import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,7 +21,7 @@ import retrofit2.Response;
 
 class LoginInteractorImpl implements LoginInteractor {
     @Override
-    public void login(Credentials credentials, final OnLoginFinishedListener listener) {
+    public void login(final Credentials credentials, final OnLoginFinishedListener listener) {
         AuthApi authApi = ApiClient.getClient().create(AuthApi.class);
 
         Call<TeacherCredentials> login = authApi.login(credentials);
@@ -28,6 +29,7 @@ class LoginInteractorImpl implements LoginInteractor {
             @Override
             public void onResponse(Call<TeacherCredentials> call, Response<TeacherCredentials> response) {
                 if(response.isSuccessful()) {
+                    SharedPreferenceUtil.saveAuthorizedUser(App.getInstance(), credentials.getUsername());
                     listener.onSuccess(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));

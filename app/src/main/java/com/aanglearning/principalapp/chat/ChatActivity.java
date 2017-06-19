@@ -77,9 +77,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
         newMsg.addTextChangedListener(newMsgWatcher);
 
         if(NetworkUtil.isNetworkAvailable(this)){
-            presenter.getMessages("teacher", TeacherDao.getTeacher().getId(), "student", recipientId);
+            presenter.getMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId);
         } else {
-            List<Message> messages = MessageDao.getMessages(TeacherDao.getTeacher().getId(), "teacher", recipientId, "student");
+            List<Message> messages = MessageDao.getMessages(TeacherDao.getTeacher().getId(), "principal", recipientId, "student");
             if(messages.size() == 0) {
                 noChats.setVisibility(View.VISIBLE);
             } else {
@@ -109,7 +109,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if(NetworkUtil.isNetworkAvailable(ChatActivity.this)) {
-                    presenter.getFollowupMessages("teacher", TeacherDao.getTeacher().getId(), "student", recipientId,
+                    presenter.getFollowupMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
                             adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
                 }
             }
@@ -229,7 +229,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
                 Message message = new Message();
                 message.setSenderId(TeacherDao.getTeacher().getId());
                 message.setSenderName(TeacherDao.getTeacher().getTeacherName());
-                message.setSenderRole("teacher");
+                message.setSenderRole("principal");
                 message.setRecipientId(recipientId);
                 message.setRecipientRole("student");
                 message.setGroupId(0);

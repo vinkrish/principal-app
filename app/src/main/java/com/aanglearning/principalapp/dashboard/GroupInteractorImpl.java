@@ -3,8 +3,11 @@ package com.aanglearning.principalapp.dashboard;
 import com.aanglearning.principalapp.App;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.api.ApiClient;
+import com.aanglearning.principalapp.api.AuthApi;
 import com.aanglearning.principalapp.api.PrincipalApi;
+import com.aanglearning.principalapp.model.Authorization;
 import com.aanglearning.principalapp.model.Groups;
+import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import java.util.List;
 
@@ -35,6 +38,26 @@ class GroupInteractorImpl implements GroupInteractor {
             @Override
             public void onFailure(Call<List<Groups>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+            }
+        });
+    }
+
+    @Override
+    public void updateFcmToken(Authorization authorization) {
+        AuthApi api = ApiClient.getAuthorizedClient().create(AuthApi.class);
+
+        Call<Void> classList = api.updateFcmToken(authorization);
+        classList.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(response.isSuccessful()) {
+                    SharedPreferenceUtil.fcmTokenSaved(App.getInstance());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+
             }
         });
     }

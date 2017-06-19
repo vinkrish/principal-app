@@ -162,6 +162,7 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
                 presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
                 break;
             case R.id.spinner_section:
+                tableLayout.removeAllViews();
                 getTimetable();
                 break;
             default:

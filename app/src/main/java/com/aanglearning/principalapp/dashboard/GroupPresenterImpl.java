@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.dashboard;
 
+import com.aanglearning.principalapp.model.Authorization;
 import com.aanglearning.principalapp.model.Groups;
 
 import java.util.List;
@@ -23,6 +24,11 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
             mView.showProgress();
             mInteractor.getGroups(userId, this);
         }
+    }
+
+    @Override
+    public void updateFcmToken(Authorization authorization) {
+        mInteractor.updateFcmToken(authorization);
     }
 
     @Override

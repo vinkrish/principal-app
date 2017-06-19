@@ -18,9 +18,6 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         AppGlobal.setSqlDbHelper(getApplicationContext());
-        LocalDate localDate = new LocalDate();
-        SharedPreferenceUtil.saveAttendanceDate(this, localDate.toString());
-        SharedPreferenceUtil.saveHomeworkDate(this, localDate.toString());
 
         if(SharedPreferenceUtil.getTeacher(this).getAuthToken().equals("")) {
             startActivity(new Intent(this, LoginActivity.class));

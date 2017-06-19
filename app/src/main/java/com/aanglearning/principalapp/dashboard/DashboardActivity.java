@@ -164,6 +164,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         if (!service.getIsAttendance()) menu.findItem(R.id.attendance_item).setVisible(false);
         if (!service.getIsHomework()) menu.findItem(R.id.homework_item).setVisible(false);
         if (!service.getIsChat()) menu.findItem(R.id.chat_item).setVisible(false);
+        if (!service.getIsTimetable()) menu.findItem(R.id.timetable_item).setVisible(false);
     }
 
     private void showSnackbar(String message) {
@@ -196,6 +197,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             backupGroups(groups);
         }
         refreshLayout.setRefreshing(false);
+        updateFcmToken();
     }
 
     private void backupGroups(final List<Groups> groups) {
@@ -206,6 +208,17 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 GroupDao.insertMany(groups);
             }
         }).start();
+    }
+
+    private void updateFcmToken() {
+        if(!SharedPreferenceUtil.isFcmTokenSaved(DashboardActivity.this)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    presenter.updateFcmToken(SharedPreferenceUtil.getAuthorization(DashboardActivity.this));
+                }
+            }).start();
+        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
