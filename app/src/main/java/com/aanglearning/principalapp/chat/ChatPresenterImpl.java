@@ -27,6 +27,14 @@ class ChatPresenterImpl implements ChatPresenter, ChatInteractorImpl.OnFinishedL
     }
 
     @Override
+    public void getRecentMessages(String senderRole, long senderId, String recipientRole, long recipeintId, long messageId) {
+        if(mView != null) {
+            mView.showProgress();
+            mInteractor.getRecentMessages(senderRole, senderId, recipientRole, recipeintId, messageId, this);
+        }
+    }
+
+    @Override
     public void getMessages(String senderRole, long senderId, String recipientRole, long recipeintId) {
         if(mView != null) {
             mView.showProgress();
@@ -59,6 +67,14 @@ class ChatPresenterImpl implements ChatPresenter, ChatInteractorImpl.OnFinishedL
     public void onMessageSaved(Message message) {
         if(mView != null) {
             mView.onMessageSaved(message);
+            mView.hideProgress();
+        }
+    }
+
+    @Override
+    public void onRecentMessagesReceived(List<Message> messages) {
+        if(mView != null) {
+            mView.showRecentMessages(messages);
             mView.hideProgress();
         }
     }

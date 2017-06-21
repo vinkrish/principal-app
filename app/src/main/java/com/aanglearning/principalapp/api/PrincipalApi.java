@@ -87,6 +87,13 @@ public interface PrincipalApi {
     @GET("chat/{chatId}")
     Call<Void> deleteChat(@Path("chatId") long chatId);
 
+    @GET("message/{senderRole}/{senderId}/{recipientRole}/{recipientId}/messagesUp/{messageId}")
+    Call<ArrayList<Message>> getChatMessagesAboveId(@Path("senderRole") String senderRole,
+                                                    @Path("senderId") long senderId,
+                                                    @Path("recipientRole") String recipientRole,
+                                                    @Path("recipientId") long recipientId,
+                                                    @Path("messageId") long messageId);
+
     @GET("message/{senderRole}/{senderId}/{recipientRole}/{recipientId}")
     Call<ArrayList<Message>> getChatMessages(@Path("senderRole") String senderRole,
                                              @Path("senderId") long senderId,

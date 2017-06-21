@@ -19,14 +19,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.MessageDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Message;
+import com.aanglearning.principalapp.model.MessageEvent;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.ImageUploadActivity;
 import com.aanglearning.principalapp.util.NetworkUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +42,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ChatActivity extends AppCompatActivity implements ChatView, View.OnClickListener {
+public class ChatActivity extends AppCompatActivity implements ChatView {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
@@ -90,6 +96,18 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
@@ -111,6 +129,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
                 if(NetworkUtil.isNetworkAvailable(ChatActivity.this)) {
                     presenter.getFollowupMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
                             adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
+                } else {
+                    List<Message> messages = MessageDao.getMessagesFromId(TeacherDao.getTeacher().getId(), "principal",
+                            recipientId, "student",
+                            adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
+                    adapter.updateDataSet(messages);
                 }
             }
         };
@@ -133,6 +156,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        if(NetworkUtil.isNetworkAvailable(this) && event.senderId == recipientId){
+            presenter.getRecentMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
+                    adapter.getDataSet().get(0).getId());
+        }
+    }
+
     private void showSnackbar(String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
@@ -149,15 +180,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
 
     @Override
     public void showError(String message) {
-        Snackbar errorSnackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG);
-        errorSnackbar.setAction(R.string.retry, this);
-        errorSnackbar.show();
+        showSnackbar(message);
     }
 
     @Override
     public void onMessageSaved(Message message) {
         noChats.setVisibility(View.INVISIBLE);
         adapter.insertDataSet(message);
+        recyclerView.smoothScrollToPosition(0);
+    }
+
+    @Override
+    public void showRecentMessages(List<Message> messages) {
+        adapter.insertDataSet(messages);
         recyclerView.smoothScrollToPosition(0);
     }
 
@@ -183,32 +218,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
     }
 
     @Override
-    public void showFollowupMessages(List<Message> msgs) {
-        adapter.updateDataSet(msgs);
-    }
-
-    public void uploadImage (View view) {
-        Intent intent = new Intent(ChatActivity.this, ImageUploadActivity.class);
-        startActivityForResult(intent, REQ_CODE);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (REQ_CODE) : {
-                if (resultCode == Activity.RESULT_OK) {
-                    String msg = data.getStringExtra("text");
-                    newMsg.setText(msg);
-                    String imgName = data.getStringExtra("imgName");
-                    sendMessage("image", imgName);
-                } else {
-                    hideProgress();
-                    showSnackbar("Canceled Image Upload");
-                }
-                break;
-            }
-        }
+    public void showFollowupMessages(List<Message> messages) {
+        adapter.updateDataSet(messages);
+        backupChats(messages);
     }
 
     public void newMsgSendListener (View view) {
@@ -228,7 +240,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
             if (NetworkUtil.isNetworkAvailable(this)) {
                 Message message = new Message();
                 message.setSenderId(TeacherDao.getTeacher().getId());
-                message.setSenderName(TeacherDao.getTeacher().getTeacherName());
+                message.setSenderName(TeacherDao.getTeacher().getName());
                 message.setSenderRole("principal");
                 message.setRecipientId(recipientId);
                 message.setRecipientRole("student");
@@ -242,11 +254,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, View.On
                 showSnackbar("You are offline,check your internet.");
             }
         }
-    }
-
-    @Override
-    public void onClick(View view) {
-
     }
 
     private final TextWatcher newMsgWatcher = new TextWatcher() {

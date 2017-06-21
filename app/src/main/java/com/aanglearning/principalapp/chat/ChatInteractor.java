@@ -14,6 +14,8 @@ interface ChatInteractor {
 
         void onMessageSaved(Message message);
 
+        void onRecentMessagesReceived(List<Message> messages);
+
         void onMessageReceived(List<Message> messages);
 
         void onFollowupMessagesReceived(List<Message> messages);
@@ -21,9 +23,12 @@ interface ChatInteractor {
 
     void saveMessage(Message message, ChatInteractor.OnFinishedListener listener);
 
-    void getMessages(String senderRole, long senderId, String recipientRole, long recipeintId,
+    void getRecentMessages(String senderRole, long senderId, String recipientRole, long recipientId,
+                           long messageId, ChatInteractor.OnFinishedListener listener);
+
+    void getMessages(String senderRole, long senderId, String recipientRole, long recipientId,
                      ChatInteractor.OnFinishedListener listener);
 
-    void getFollowupMessages(String senderRole, long senderId, String recipientRole, long recipeintId,
+    void getFollowupMessages(String senderRole, long senderId, String recipientRole, long recipientId,
                              long messageId, ChatInteractor.OnFinishedListener listener);
 }

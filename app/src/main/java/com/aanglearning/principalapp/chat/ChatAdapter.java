@@ -44,10 +44,16 @@ class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     }
 
     @UiThread
-    void updateDataSet(List<Message> msgs) {
-        int pos = messages.size();
-        this.messages.addAll(msgs);
-        notifyItemRangeInserted(pos, messages.size() - 1);
+    void updateDataSet(List<Message> messages) {
+        int pos = this.messages.size();
+        this.messages.addAll(messages);
+        notifyItemRangeInserted(pos, this.messages.size() - 1);
+    }
+
+    @UiThread
+    void insertDataSet(List<Message> messages) {
+        this.messages.addAll(0, messages);
+        notifyItemRangeInserted(0, messages.size());
     }
 
     @UiThread
