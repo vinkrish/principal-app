@@ -22,9 +22,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="@dimen/spacing_small"
-                    android:layout_marginTop="@dimen/spacing_small"
+                    android:paddingLeft="@dimen/spacing_small"
+                    android:paddingTop="@dimen/spacing_small"
                     android:text="@string/groups"
                     android:textColor="@color/colorPrimaryDark"
                     android:textStyle="bold" />

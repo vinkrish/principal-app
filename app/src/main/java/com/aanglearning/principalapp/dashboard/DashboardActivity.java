@@ -1,7 +1,11 @@
 package com.aanglearning.principalapp.dashboard;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -33,11 +37,18 @@ import com.aanglearning.principalapp.login.LoginActivity;
 import com.aanglearning.principalapp.messagegroup.MessageActivity;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Service;
+import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.timetable.TimetableActivity;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
 import com.aanglearning.principalapp.util.NetworkUtil;
+import com.aanglearning.principalapp.util.PermissionUtil;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +66,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
     private GroupPresenter presenter;
     private GroupAdapter adapter;
+    private Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +74,13 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
 
-        toolbar.setTitle("Thy Ward");
+        //getSupportActionBar().setTitle("Principal");
+
+        teacher = TeacherDao.getTeacher();
+
+        toolbar.setTitle(teacher.getName());
         toolbar.setSubtitle("Principal");
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle("Principala");
 
         presenter = new GroupPresenterImpl(this, new GroupInteractorImpl());
 
@@ -94,11 +109,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
-        View hView = navigationView.inflateHeaderView(R.layout.header);
-        ImageView imageView = (ImageView) hView.findViewById(R.id.user_image);
-        TextView tv = (TextView) hView.findViewById(R.id.name);
-        imageView.setImageResource(R.drawable.ic_account);
-        tv.setText(TeacherDao.getTeacher().getName());
+        setProfile();
 
         hideDrawerItem();
 
@@ -111,12 +122,12 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.getGroups(TeacherDao.getTeacher().getSchoolId());
+                presenter.getGroups(teacher.getSchoolId());
             }
         });
 
         if(NetworkUtil.isNetworkAvailable(this)) {
-            presenter.getGroups(TeacherDao.getTeacher().getSchoolId());
+            presenter.getGroups(teacher.getSchoolId());
         } else {
             List<Groups> groups = GroupDao.getGroups();
             if(groups.size() == 0) {
@@ -255,6 +266,46 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                         return false;
                     }
                 });
+    }
+
+    private void setProfile() {
+        View hView = navigationView.inflateHeaderView(R.layout.header);
+        final ImageView imageView = (ImageView) hView.findViewById(R.id.user_image);
+        TextView tv = (TextView) hView.findViewById(R.id.name);
+        tv.setText(teacher.getName());
+
+        if(PermissionUtil.getStoragePermissionStatus(this)) {
+            File dir = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/Images");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            final File file = new File(dir, teacher.getImage());
+            if(file.exists()) {
+                imageView.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+            } else {
+                Picasso.with(this)
+                        .load("https://s3.ap-south-1.amazonaws.com/aang-solutions/" + teacher.getImage())
+                        .placeholder(R.drawable.splash_image)
+                        .into(imageView, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                                try {
+                                    FileOutputStream fos = new FileOutputStream(file);
+                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    fos.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onError() {
+                                imageView.setImageResource(R.drawable.ic_account);
+                            }
+                        });
+            }
+        }
     }
 
     GroupAdapter.OnItemClickListener mItemListener = new GroupAdapter.OnItemClickListener() {
