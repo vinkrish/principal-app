@@ -76,17 +76,24 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.getMessages(group.getId());
+                getBackupMessages();
             }
         });
 
+        if(PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
+            getBackupMessages();
+        }
+    }
+
+    private void getBackupMessages() {
+        List<Message> messages = MessageDao.getGroupMessages(group.getId());
+        adapter.setDataSet(messages);
         if(NetworkUtil.isNetworkAvailable(this)) {
-            if(PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
+            if(messages.size() == 0) {
                 presenter.getMessages(group.getId());
+            } else {
+                presenter.getRecentMessages(group.getId(), adapter.getDataSet().get(0).getId());
             }
-        } else {
-            List<Message> messages = MessageDao.getGroupMessages(group.getId());
-            adapter.setDataSet(messages);
         }
     }
 
@@ -100,7 +107,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            presenter.getMessages(group.getId());
+            getBackupMessages();
         } else {
             showSnackbar("Permission has been denied");
         }
@@ -171,9 +178,20 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
     }
 
     @Override
+    public void showRecentMessages(List<Message> messages) {
+        adapter.insertDataSet(messages);
+        backupMessages(messages);
+    }
+
+    @Override
     public void showMessages(List<Message> messages) {
-        refreshLayout.setRefreshing(false);
         adapter.setDataSet(messages);
+        backupMessages(messages);
+    }
+
+    @Override
+    public void showFollowupMessages(List<Message> messages) {
+        adapter.updateDataSet(messages);
         backupMessages(messages);
     }
 
@@ -181,15 +199,9 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MessageDao.clearGroupMessages(group.getId());
                 MessageDao.insertGroupMessages(messages);
             }
         }).start();
-    }
-
-    @Override
-    public void showFollowupMessages(List<Message> msgs) {
-        adapter.updateDataSet(msgs);
     }
 
 }
