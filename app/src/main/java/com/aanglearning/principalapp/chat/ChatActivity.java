@@ -1,8 +1,6 @@
 package com.aanglearning.principalapp.chat;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -19,7 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.MessageDao;
@@ -27,7 +24,6 @@ import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.MessageEvent;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
-import com.aanglearning.principalapp.util.ImageUploadActivity;
 import com.aanglearning.principalapp.util.NetworkUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -36,6 +32,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -58,8 +55,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     private ChatAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
 
-    final static int REQ_CODE = 999;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +76,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         setupRecyclerView();
 
         newMsg.addTextChangedListener(newMsgWatcher);
+
+        List<Message> messages = MessageDao.getMessages(TeacherDao.getTeacher().getId(), "principal", recipientId, "student");
+        if(messages.size() == 0) {
+            noChats.setVisibility(View.VISIBLE);
+        } else {
+            noChats.setVisibility(View.INVISIBLE);
+            adapter.setDataSet(messages);
+        }
     }
 
     @Override
@@ -93,14 +96,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     public void onResume() {
         super.onResume();
         if(NetworkUtil.isNetworkAvailable(this)){
-            presenter.getMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId);
-        } else {
-            List<Message> messages = MessageDao.getMessages(TeacherDao.getTeacher().getId(), "principal", recipientId, "student");
-            if(messages.size() == 0) {
-                noChats.setVisibility(View.VISIBLE);
+            if(adapter.getItemCount() == 0) {
+                presenter.getMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId);
             } else {
-                noChats.setVisibility(View.INVISIBLE);
-                adapter.setDataSet(messages);
+                presenter.getRecentMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
+                        adapter.getDataSet().get(0).getId());
             }
         }
     }
@@ -192,12 +192,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         noChats.setVisibility(View.INVISIBLE);
         adapter.insertDataSet(message);
         recyclerView.smoothScrollToPosition(0);
+        backupChats(Arrays.asList(message));
     }
 
     @Override
     public void showRecentMessages(List<Message> messages) {
         adapter.insertDataSet(messages);
         recyclerView.smoothScrollToPosition(0);
+        backupChats(messages);
     }
 
     @Override
@@ -215,7 +217,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MessageDao.clearChatMessages(TeacherDao.getTeacher().getId(), "teacher", recipientId, "student");
+                //MessageDao.clearChatMessages(TeacherDao.getTeacher().getId(), "teacher", recipientId, "student");
                 MessageDao.insertChatMessages(messages);
             }
         }).start();

@@ -126,6 +126,10 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if(NetworkUtil.isNetworkAvailable(MessageActivity.this)) {
                     presenter.getFollowupMessages(group.getId(), adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
+                } else {
+                    List<Message> messages = MessageDao.getGroupMessagesFromId(group.getId(),
+                            adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
+                    adapter.updateDataSet(messages);
                 }
             }
         };
