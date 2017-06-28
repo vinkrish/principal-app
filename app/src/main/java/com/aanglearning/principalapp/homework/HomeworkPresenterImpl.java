@@ -60,6 +60,13 @@ class HomeworkPresenterImpl implements HomeworkPresenter,
     }
 
     @Override
+    public void loadOffline(String tableName) {
+        if (mView != null) {
+            mView.showOffline(tableName);
+        }
+    }
+
+    @Override
     public void onClassReceived(List<Clas> clasList) {
         if (mView != null) {
             mView.showClass(clasList);

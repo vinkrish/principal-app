@@ -26,6 +26,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.dao.ClassDao;
+import com.aanglearning.principalapp.dao.SectionDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.dao.TimetableDao;
 import com.aanglearning.principalapp.model.Clas;
@@ -73,7 +75,11 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
 
         presenter = new TimetablePresenterImpl(this, new TimetableInteractorImpl());
 
-        presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+        } else {
+            showOfflineClass();
+        }
     }
 
     @Override
@@ -87,7 +93,7 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
     }
 
     private void showSnackbar(String message) {
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
@@ -102,8 +108,24 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
 
     @Override
     public void showError(String message) {
-        progressBar.setVisibility(View.INVISIBLE);
         showSnackbar(message);
+    }
+
+    @Override
+    public void showOffline(String tableName) {
+        switch (tableName){
+            case "class":
+                showOfflineClass();
+                break;
+            case "section":
+                showOfflineSection();
+                break;
+            case "timetable":
+                showOfflineTimetable();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -113,10 +135,50 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         classSpinner.setAdapter(adapter);
         classSpinner.setOnItemSelectedListener(this);
+        backupClass(clasList);
+    }
+
+    private void backupClass(final List<Clas> classList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ClassDao.delete(TeacherDao.getTeacher().getSchoolId());
+                ClassDao.insert(classList);
+            }
+        }).start();
+    }
+
+    private void showOfflineClass() {
+        List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
+        ArrayAdapter<Clas> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classSpinner.setAdapter(adapter);
+        classSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
     public void showSection(List<Section> sectionList) {
+        ArrayAdapter<Section> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sectionSpinner.setAdapter(adapter);
+        sectionSpinner.setOnItemSelectedListener(this);
+        backupSection(sectionList);
+    }
+
+    private void backupSection(final List<Section> sectionList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SectionDao.delete(((Clas) classSpinner.getSelectedItem()).getId());
+                SectionDao.insert(sectionList);
+            }
+        }).start();
+    }
+
+    private void showOfflineSection() {
+        List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
         ArrayAdapter<Section> adapter = new
                 ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -155,11 +217,35 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
         }).start();
     }
 
+    private void showOfflineTimetable() {
+        List<Timetable> timetableList = TimetableDao.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
+        if(timetableList.size() == 0) {
+            noTimetable.setVisibility(View.VISIBLE);
+        } else {
+            noTimetable.setVisibility(View.INVISIBLE);
+            for(String day: days) {
+                List<Timetable> timtableList = new ArrayList<>();
+                for(Timetable timetable: timetableList) {
+                    if(timetable.getDayOfWeek().equals(day)) {
+                        timtableList.add(timetable);
+                        if(timetable.getPeriodNo() > noOfPeriods) noOfPeriods = timetable.getPeriodNo();
+                    }
+                }
+                timetableMap.put(day, timtableList);
+            }
+            tableLayout.addView(new TableMainLayout(this));
+        }
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
         switch (parent.getId()) {
             case R.id.spinner_class:
-                presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+                if(NetworkUtil.isNetworkAvailable(this)) {
+                    presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+                } else {
+                    showOfflineSection();
+                }
                 break;
             case R.id.spinner_section:
                 tableLayout.removeAllViews();
@@ -179,23 +265,7 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
         } else {
-            List<Timetable> timetableList = TimetableDao.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId());
-            if(timetableList.size() == 0) {
-                noTimetable.setVisibility(View.VISIBLE);
-            } else {
-                noTimetable.setVisibility(View.INVISIBLE);
-                for(String day: days) {
-                    List<Timetable> timtableList = new ArrayList<>();
-                    for(Timetable timetable: timetableList) {
-                        if(timetable.getDayOfWeek().equals(day)) {
-                            timtableList.add(timetable);
-                            if(timetable.getPeriodNo() > noOfPeriods) noOfPeriods = timetable.getPeriodNo();
-                        }
-                    }
-                    timetableMap.put(day, timtableList);
-                }
-                tableLayout.addView(new TableMainLayout(this));
-            }
+            showOfflineTimetable();
         }
     }
 

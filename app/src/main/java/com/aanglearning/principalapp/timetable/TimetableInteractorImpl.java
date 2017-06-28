@@ -32,11 +32,13 @@ class TimetableInteractorImpl implements TimetableInteractor {
                     listener.onClassReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("class");
                 }
             }
             @Override
             public void onFailure(Call<List<Clas>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("class");
             }
         });
     }
@@ -53,11 +55,13 @@ class TimetableInteractorImpl implements TimetableInteractor {
                     listener.onSectionReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("section");
                 }
             }
             @Override
             public void onFailure(Call<List<Section>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("section");
             }
         });
     }
@@ -74,12 +78,14 @@ class TimetableInteractorImpl implements TimetableInteractor {
                     listener.onTimetableReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("timetable");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Timetable>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("timetable");
             }
         });
     }

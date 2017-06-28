@@ -33,11 +33,13 @@ class HomeworkInteractorImpl implements HomeworkInteractor {
                     listener.onClassReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("class");
                 }
             }
             @Override
             public void onFailure(Call<List<Clas>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("class");
             }
         });
     }
@@ -54,11 +56,13 @@ class HomeworkInteractorImpl implements HomeworkInteractor {
                     listener.onSectionReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("section");
                 }
             }
             @Override
             public void onFailure(Call<List<Section>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("section");
             }
         });
     }
@@ -75,12 +79,14 @@ class HomeworkInteractorImpl implements HomeworkInteractor {
                     listener.onHomeworkReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
+                    listener.loadOffline("homework");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Homework>> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
+                listener.loadOffline("homework");
             }
         });
     }

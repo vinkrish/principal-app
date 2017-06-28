@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -97,12 +96,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
         } else {
-            List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
-            ArrayAdapter<Clas> adapter = new
-                    ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            classSpinner.setAdapter(adapter);
-            classSpinner.setOnItemSelectedListener(this);
+            showOfflineClass();
         }
 
         refreshLayout.setColorSchemeColors(
@@ -114,7 +108,9 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+                if(NetworkUtil.isNetworkAvailable(AttendanceActivity.this)) {
+                    presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+                }
             }
         });
     }
@@ -126,7 +122,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     }
 
     private void showSnackbar(String message) {
-        Snackbar.make(coordinatorLayout, message, 3000).show();
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
@@ -143,6 +139,26 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     public void showError(String message) {
         refreshLayout.setRefreshing(false);
         showSnackbar(message);
+    }
+
+    @Override
+    public void showOffline(String tableName) {
+        switch (tableName){
+            case "class":
+                showOfflineClass();
+                break;
+            case "section":
+                showOfflineSection();
+                break;
+            case "attendance":
+                showOfflineAttendance();
+                break;
+            case "timetable":
+                showOfflineTimetable();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -165,6 +181,15 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         }).start();
     }
 
+    private void showOfflineClass() {
+        List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
+        ArrayAdapter<Clas> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classSpinner.setAdapter(adapter);
+        classSpinner.setOnItemSelectedListener(this);
+    }
+
     @Override
     public void showSection(List<Section> sectionList) {
         ArrayAdapter<Section> adapter = new
@@ -183,6 +208,15 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
                 SectionDao.insert(sectionList);
             }
         }).start();
+    }
+
+    private void showOfflineSection() {
+        List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+        ArrayAdapter<Section> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sectionSpinner.setAdapter(adapter);
+        sessionSpinner.setOnItemSelectedListener(this);
     }
 
     private void showSession() {
@@ -240,6 +274,28 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         }).start();
     }
 
+    private void showOfflineAttendance() {
+        String attendanceType = ((Clas) classSpinner.getSelectedItem()).getAttendanceType();
+        switch (attendanceType) {
+            case "Daily":
+                List<Attendance> attendanceList1 = AttendanceDao.getAttendance(
+                            ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate, 0);
+                viewAttendance(attendanceList1);
+                break;
+            case "Session":
+                List<Attendance> attendanceList2 = AttendanceDao.getAttendance(
+                        ((Section) sectionSpinner.getSelectedItem()).getId(), attendanceDate,
+                        sessionSpinner.getSelectedItem().equals("Morning") ? 0 : 1);
+                viewAttendance(attendanceList2);
+                break;
+            case "Period":
+                showOfflineTimetable();
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
         switch (parent.getId()) {
@@ -247,12 +303,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
                 if(NetworkUtil.isNetworkAvailable(this)) {
                     presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
                 } else {
-                    List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
-                    ArrayAdapter<Section> adapter = new
-                            ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    sectionSpinner.setAdapter(adapter);
-                    sessionSpinner.setOnItemSelectedListener(this);
+                    showOfflineSection();
                 }
                 break;
             case R.id.spinner_section:
@@ -289,6 +340,16 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private void showOfflineTimetable() {
+        List<Timetable> timetableList = TimetableDao.getDayTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
+                days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
+        ArrayAdapter<Timetable> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, timetableList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        periodSpinner.setAdapter(adapter);
+        periodSpinner.setOnItemSelectedListener(this);
     }
 
     private void setDefaultDate() {
@@ -380,13 +441,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
                     presenter.getTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
                             days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
                 } else {
-                    List<Timetable> timetableList = TimetableDao.getDayTimetable(((Section) sectionSpinner.getSelectedItem()).getId(),
-                            days[getFormattedCalendar().get(Calendar.DAY_OF_WEEK)]);
-                    ArrayAdapter<Timetable> adapter = new
-                            ArrayAdapter<>(this, android.R.layout.simple_spinner_item, timetableList);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    periodSpinner.setAdapter(adapter);
-                    periodSpinner.setOnItemSelectedListener(this);
+                    showOfflineTimetable();
                 }
                 break;
             default:

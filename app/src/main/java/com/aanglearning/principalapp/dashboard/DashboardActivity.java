@@ -98,7 +98,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
         ActionBarDrawerToggle actionBarDrawerToggle = new
                 ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name) {
-
                     @Override
                     public void onDrawerClosed(View drawerView) {
                         super.onDrawerClosed(drawerView);
@@ -132,13 +131,17 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getGroups(teacher.getSchoolId());
         } else {
-            List<Groups> groups = GroupDao.getGroups();
-            if(groups.size() == 0) {
-                noGroups.setVisibility(View.VISIBLE);
-            } else {
-                noGroups.setVisibility(View.INVISIBLE);
-                adapter.replaceData(groups);
-            }
+            loadOfflineData();
+        }
+    }
+
+    private void loadOfflineData() {
+        List<Groups> groups = GroupDao.getGroups();
+        if(groups.size() == 0) {
+            noGroups.setVisibility(View.VISIBLE);
+        } else {
+            noGroups.setVisibility(View.INVISIBLE);
+            adapter.replaceData(groups);
         }
     }
 
@@ -197,8 +200,8 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
     @Override
     public void showError(String message) {
-        refreshLayout.setRefreshing(false);
         showSnackbar(message);
+        loadOfflineData();
     }
 
     @Override

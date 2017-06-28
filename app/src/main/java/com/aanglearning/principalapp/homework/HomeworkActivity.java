@@ -84,12 +84,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
         } else {
-            List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
-            ArrayAdapter<Clas> adapter = new
-                    ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            classSpinner.setAdapter(adapter);
-            classSpinner.setOnItemSelectedListener(this);
+            showOfflineClass();
         }
 
         refreshLayout.setColorSchemeColors(
@@ -101,7 +96,9 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+                if(NetworkUtil.isNetworkAvailable(HomeworkActivity.this)) {
+                    presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+                }
             }
         });
     }
@@ -165,7 +162,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
     };
 
     private void showSnackbar(String message) {
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
@@ -180,8 +177,24 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
     @Override
     public void showError(String message) {
-        refreshLayout.setRefreshing(false);
         showSnackbar(message);
+    }
+
+    @Override
+    public void showOffline(String tableName) {
+        switch (tableName){
+            case "class":
+                showOfflineClass();
+                break;
+            case "section":
+                showOfflineSection();
+                break;
+            case "homework":
+                showOfflineHomework();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -204,6 +217,15 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         }).start();
     }
 
+    private void showOfflineClass() {
+        List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
+        ArrayAdapter<Clas> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classSpinner.setAdapter(adapter);
+        classSpinner.setOnItemSelectedListener(this);
+    }
+
     @Override
     public void showSection(List<Section> sectionList) {
         ArrayAdapter<Section> adapter = new
@@ -222,6 +244,15 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
                 SectionDao.insert(sectionList);
             }
         }).start();
+    }
+
+    private void showOfflineSection() {
+        List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+        ArrayAdapter<Section> adapter = new
+                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sectionSpinner.setAdapter(adapter);
+        sectionSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -248,19 +279,23 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         }).start();
     }
 
+    private void showOfflineHomework() {
+        List<Homework> homeworks = new ArrayList<>();
+        List<Homework> homeworkList = HomeworkDao.getHomework(((Section)sectionSpinner.getSelectedItem()).getId(), homeworkDate);
+        for(Homework hw: homeworkList) {
+            if(hw.getId() != 0)
+                homeworks.add(hw);
+        }
+        homeworkAdapter.setDataSet(homeworks);
+        if(homeworks.size() == 0) noHomework.setVisibility(View.VISIBLE);
+        else noHomework.setVisibility(View.INVISIBLE);
+    }
+
     private void getHomework() {
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getHomework(((Section)sectionSpinner.getSelectedItem()).getId(), homeworkDate);
         } else {
-            List<Homework> homeworks = new ArrayList<>();
-            List<Homework> homeworkList = HomeworkDao.getHomework(((Section)sectionSpinner.getSelectedItem()).getId(), homeworkDate);
-            for(Homework hw: homeworkList) {
-                if(hw.getId() != 0)
-                    homeworks.add(hw);
-            }
-            homeworkAdapter.setDataSet(homeworks);
-            if(homeworks.size() == 0) noHomework.setVisibility(View.VISIBLE);
-            else noHomework.setVisibility(View.INVISIBLE);
+            showOfflineHomework();
         }
     }
 
@@ -271,12 +306,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
                 if(NetworkUtil.isNetworkAvailable(this)) {
                     presenter.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
                 } else {
-                    List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
-                    ArrayAdapter<Section> adapter = new
-                            ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    sectionSpinner.setAdapter(adapter);
-                    sectionSpinner.setOnItemSelectedListener(this);
+                    showOfflineSection();
                 }
                 break;
             case R.id.spinner_section:

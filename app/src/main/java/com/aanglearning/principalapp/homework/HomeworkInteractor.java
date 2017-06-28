@@ -14,6 +14,8 @@ interface HomeworkInteractor {
     interface OnFinishedListener {
         void onError(String message);
 
+        void loadOffline(String tableName);
+
         void onClassReceived(List<Clas> clasList);
 
         void onSectionReceived(List<Section> sectionList);
