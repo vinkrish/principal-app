@@ -33,6 +33,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -196,7 +197,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         noChats.setVisibility(View.INVISIBLE);
         adapter.insertDataSet(message);
         recyclerView.smoothScrollToPosition(0);
-        backupChats(Arrays.asList(message));
+        backupChats(Collections.singletonList(message));
     }
 
     @Override
