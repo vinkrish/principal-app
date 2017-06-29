@@ -98,12 +98,6 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -184,12 +178,14 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
     @Override
     public void showRecentMessages(List<Message> messages) {
         adapter.insertDataSet(messages);
+        recyclerView.smoothScrollToPosition(0);
         backupMessages(messages);
     }
 
     @Override
     public void showMessages(List<Message> messages) {
         adapter.setDataSet(messages);
+        recyclerView.smoothScrollToPosition(0);
         backupMessages(messages);
     }
 
@@ -208,4 +204,9 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
         }).start();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
 }
