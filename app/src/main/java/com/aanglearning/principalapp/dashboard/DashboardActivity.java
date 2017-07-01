@@ -260,24 +260,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                                 startActivity(new Intent(DashboardActivity.this, ChatsActivity.class));
                                 break;
                             case R.id.logout_item:
-                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(DashboardActivity.this);
-                                alertDialog.setMessage("Are you sure you want to logout?");
-                                alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        SharedPreferenceUtil.logout(DashboardActivity.this);
-                                        SqlDbHelper.getInstance(DashboardActivity.this).deleteTables();
-                                        startActivity(new Intent(DashboardActivity.this, LoginActivity.class));
-                                        finish();
-                                    }
-                                });
-                                alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener(){
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        dialogInterface.dismiss();
-                                    }
-                                });
-                                alertDialog.show();
+                                logout();
                                 break;
                             default:
                                 break;
@@ -287,6 +270,27 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                         return false;
                     }
                 });
+    }
+
+    private void logout() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Are you sure you want to logout?");
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                SharedPreferenceUtil.logout(DashboardActivity.this);
+                SqlDbHelper.getInstance(DashboardActivity.this).deleteTables();
+                startActivity(new Intent(DashboardActivity.this, LoginActivity.class));
+                finish();
+            }
+        });
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 
     private void setProfile() {

@@ -10,7 +10,7 @@ interface LoginPresenter {
 
     void validateCredentials(Credentials credentials);
 
-    void pwdRecovery(String authToken, String newPassword);
+    void pwdRecovery(String username);
 
     void onDestroy();
 }

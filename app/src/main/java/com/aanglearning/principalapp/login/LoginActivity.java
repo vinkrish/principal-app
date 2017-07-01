@@ -1,11 +1,13 @@
 package com.aanglearning.principalapp.login;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,6 +20,7 @@ import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.dashboard.DashboardActivity;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
+import com.aanglearning.principalapp.sqlite.SqlDbHelper;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import butterknife.BindView;
@@ -47,10 +50,12 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     }
 
     public void login(View view) {
-        Credentials c = new Credentials();
-        c.setUsername(loginId.getText().toString());
-        c.setPassword(password.getText().toString());
-        presenter.validateCredentials(c);
+        if(validate()) {
+            Credentials c = new Credentials();
+            c.setUsername(loginId.getText().toString());
+            c.setPassword(password.getText().toString());
+            presenter.validateCredentials(c);
+        }
     }
 
     public void forgotPassword(View view) {
@@ -59,11 +64,11 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-
-        presenter.pwdRecovery(
-                SharedPreferenceUtil.getTeacher(this).getAuthToken(),
-                loginId.getText().toString());
-
+        if(loginId.getText().toString().length() != 10) {
+            loginLayout.setError(getString(R.string.valid_mobile));
+        } else {
+            presenter.pwdRecovery(loginId.getText().toString());
+        }
     }
 
     private void showSnackbar(String message) {
@@ -87,7 +92,15 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
 
     @Override
     public void pwdRecovered() {
-
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("Password has been sent to your registered mobile");
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 
     @Override
@@ -108,5 +121,20 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     public void navigateToDashboard() {
         startActivity(new Intent(this, DashboardActivity.class));
         finish();
+    }
+
+    public boolean validate(){
+        if(loginId.getText().toString().isEmpty()){
+            loginLayout.setError(getString(R.string.username_error));
+            return false;
+        } else if (loginId.getText().toString().length() != 10) {
+            loginLayout.setError(getString(R.string.valid_mobile));
+            return false;
+        }else if (password.getText().toString().isEmpty() ||
+                password.getText().toString().length() < 6) {
+            passwordLayout.setError(getString(R.string.valid_password));
+            return false;
+        }
+        return true;
     }
 }
