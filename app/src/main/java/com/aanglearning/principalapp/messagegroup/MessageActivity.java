@@ -25,6 +25,7 @@ import com.aanglearning.principalapp.usergroup.UserGroupActivity;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.NetworkUtil;
 import com.aanglearning.principalapp.util.PermissionUtil;
+import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        adapter = new MessageAdapter(this, new ArrayList<Message>(0));
+        adapter = new MessageAdapter(this, new ArrayList<Message>(0), SharedPreferenceUtil.getTeacher(this).getSchoolId());
         recyclerView.setAdapter(adapter);
 
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {

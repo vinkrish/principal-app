@@ -43,6 +43,7 @@ import butterknife.ButterKnife;
 class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     private Context mContext;
     private List<Message> messages;
+    private long schoolId;
 
     private static final int ITEM_TYPE_TEXT = 0;
     private static final int ITEM_TYPE_IMAGE = 1;
@@ -54,9 +55,10 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             .endConfig()
             .roundRect(10);
 
-    MessageAdapter(Context context, List<Message> messages) {
+    MessageAdapter(Context context, List<Message> messages, long schoolId) {
         this.mContext = context;
         this.messages = messages;
+        this.schoolId = schoolId;
     }
 
     List<Message> getDataSet() {
@@ -197,7 +199,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
                 sharedImage.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
             } else {
                 Picasso.with(mContext)
-                        .load("https://s3.ap-south-1.amazonaws.com/aang-solutions/" + message.getImageUrl())
+                        .load("https://s3.ap-south-1.amazonaws.com/shikshitha-images/" + schoolId + "/" + message.getImageUrl())
                         .placeholder(R.drawable.splash_image)
                         .into(sharedImage, new Callback() {
                             @Override
@@ -278,7 +280,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
         messageText.setText(message.getMessageBody());
 
         ImageView fullImage = (ImageView) dialog.findViewById(R.id.full_image);
-        File file = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/Images/" + message.getImageUrl());
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/" + schoolId + "/" + message.getImageUrl());
         if(file.exists()) {
             fullImage.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
         }
