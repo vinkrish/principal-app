@@ -19,10 +19,18 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
     }
 
     @Override
-    public void getGroups(long userId) {
+    public void getGroups(long schoolId) {
         if (mView != null) {
             mView.showProgress();
-            mInteractor.getGroups(userId, this);
+            mInteractor.getGroups(schoolId, this);
+        }
+    }
+
+    @Override
+    public void getPrincipalGroups(long teacherId) {
+        if (mView != null) {
+            mView.showProgress();
+            mInteractor.getPrincipalGroups(teacherId, this);
         }
     }
 
@@ -47,8 +55,16 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
     @Override
     public void onGroupsReceived(List<Groups> groupsList) {
         if (mView != null) {
-            mView.setGroups(groupsList);
             mView.hideProgess();
+            mView.setGroups(groupsList);
+        }
+    }
+
+    @Override
+    public void onPrincipalGroupsReceived(List<Groups> groupsList) {
+        if (mView != null) {
+            mView.hideProgess();
+            mView.setPrincipalGroups(groupsList);
         }
     }
 

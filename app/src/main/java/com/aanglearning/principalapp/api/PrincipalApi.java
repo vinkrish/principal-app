@@ -50,8 +50,14 @@ public interface PrincipalApi {
     @POST("groups")
     Call<Groups> saveGroup(@Body Groups groups);
 
+    @POST("groups/principal/school")
+    Call<Groups> saveSchoolGroup(@Body Groups groups);
+
     @GET("groups/principal/{schoolId}")
     Call<List<Groups>> getGroups(@Path("schoolId") long schoolId);
+
+    @GET("groups/principal/teacher/{id}")
+    Call<List<Groups>> getPrincipalGroups(@Path("id") long id);
 
     @GET("groups/{groupId}")
     Call<Void> deleteGroup(@Path("groupId") long groupId);

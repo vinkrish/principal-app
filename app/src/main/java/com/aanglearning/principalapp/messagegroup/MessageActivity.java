@@ -1,5 +1,7 @@
 package com.aanglearning.principalapp.messagegroup;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -13,39 +15,56 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.MessageDao;
+import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Message;
+import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.usergroup.UserGroupActivity;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
+import com.aanglearning.principalapp.util.FloatingActionButton;
 import com.aanglearning.principalapp.util.NetworkUtil;
 import com.aanglearning.principalapp.util.PermissionUtil;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MessageActivity extends AppCompatActivity implements MessageView,
+public class MessageActivity extends AppCompatActivity implements MessageView, View.OnKeyListener,
         ActivityCompat.OnRequestPermissionsResultCallback{
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.new_msg_layout) LinearLayout newMsgLayout;
+    @BindView(R.id.new_msg) EditText newMsg;
+    @BindView(R.id.enter_msg) ImageView enterMsg;
 
     private static final String TAG = "MessageActivity";
     private MessagePresenter presenter;
     private Groups group;
     private MessageAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
+    private FloatingActionButton fabButton;
 
+    final static int REQ_CODE = 999;
     private static final int WRITE_STORAGE_PERMISSION = 666;
 
     @Override
@@ -56,22 +75,13 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setSubtitle(R.string.tap_group);
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MessageActivity.this, UserGroupActivity.class);
-                intent.putExtra("groupId", group.getId());
-                intent.putExtra("groupName", group.getName());
-                startActivity(intent);
-            }
-        });
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             group = new Groups();
             group.setId(extras.getLong("groupId"));
             group.setName(extras.getString("groupName"));
+            group.setCreatorRole(extras.getString("isPrincipal"));
         }
         getSupportActionBar().setTitle(group.getName());
 
@@ -92,9 +102,58 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
             }
         });
 
+        if(group.getCreatorRole().equals("principal")) {
+            setupFab();
+        } else {
+            getSupportActionBar().setSubtitle(R.string.tap_group);
+            toolbar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(MessageActivity.this, UserGroupActivity.class);
+                    intent.putExtra("groupId", group.getId());
+                    intent.putExtra("groupName", group.getName());
+                    startActivity(intent);
+                }
+            });
+        }
+
+        newMsg.setOnKeyListener(this);
+        newMsg.addTextChangedListener(newMsgWatcher);
+
         if(PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
             getBackupMessages();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(newMsgLayout.getVisibility() == View.VISIBLE) {
+            newMsgLayout.setVisibility(View.GONE);
+            fabButton.showFloatingActionButton();
+            newMsg.setText("");
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void setupFab() {
+        fabButton = new FloatingActionButton.Builder(this)
+                .withDrawable(getResources().getDrawable(R.drawable.ic_add))
+                .withButtonColor(ContextCompat.getColor(this, R.color.colorAccent))
+                .withGravity(Gravity.BOTTOM | Gravity.RIGHT)
+                .withMargins(0, 0, 16, 16)
+                .create();
+
+        fabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fabButton.hideFloatingActionButton();
+                newMsgLayout.setVisibility(View.VISIBLE);
+                newMsg.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(newMsg, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
     }
 
     private void getBackupMessages() {
@@ -167,7 +226,12 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
 
     @Override
     public void onMessageSaved(Message message) {
+        newMsgLayout.setVisibility(View.GONE);
+        fabButton.showFloatingActionButton();
+        newMsg.setText("");
         adapter.insertDataSet(message);
+        recyclerView.smoothScrollToPosition(0);
+        backupMessages(Collections.singletonList(message));
     }
 
     @Override
@@ -197,6 +261,94 @@ public class MessageActivity extends AppCompatActivity implements MessageView,
                 MessageDao.insertGroupMessages(messages);
             }
         }).start();
+    }
+
+    public void uploadImage (View view) {
+        Intent intent = new Intent(MessageActivity.this, ImageUploadActivity.class);
+        startActivityForResult(intent, REQ_CODE);
+    }
+
+    public void newMsgSendListener (View view) {
+        sendMessage("text", "");
+        newMsg.setText("");
+    }
+
+    private void sendMessage(String messageType, String imgUrl) {
+        View v = this.getCurrentFocus();
+        if (v != null) {
+            InputMethodManager imm = (InputMethodManager)this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        }
+        if(newMsg.getText().toString().trim().isEmpty() && imgUrl.equals("")) {
+            showError("Please enter message");
+        } else {
+            if (NetworkUtil.isNetworkAvailable(this)) {
+                Message message = new Message();
+                Teacher teacher = TeacherDao.getTeacher();
+                message.setSenderId(teacher.getId());
+                message.setSenderName(teacher.getName());
+                message.setSenderRole("teacher");
+                message.setGroupId(group.getId());
+                message.setRecipientRole("group");
+                message.setMessageType(messageType);
+                message.setImageUrl(imgUrl);
+                message.setMessageBody(newMsg.getText().toString());
+                message.setCreatedAt(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date()));
+                presenter.saveMessage(message);
+            } else {
+                showError("You are offline,check your internet.");
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (REQ_CODE) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    String msg = data.getStringExtra("text");
+                    newMsg.setText(msg);
+                    String imgName = data.getStringExtra("imgName");
+                    sendMessage("image", imgName);
+                } else {
+                    hideProgress();
+                    showSnackbar("Canceled Image Upload");
+                }
+                break;
+            }
+        }
+    }
+
+    private final TextWatcher newMsgWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            if (newMsg.getText().toString().equals("")) {
+            } else {
+                enterMsg.setImageResource(R.drawable.ic_chat_send);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if(editable.length()==0){
+                enterMsg.setImageResource(R.drawable.ic_chat_send);
+            }else{
+                enterMsg.setImageResource(R.drawable.ic_chat_send_active);
+            }
+        }
+    };
+
+    @Override
+    public boolean onKey(View view, int i, KeyEvent keyEvent) {
+        if(i == keyEvent.KEYCODE_ENTER){
+            sendMessage("text", "");
+        }
+        return false;
     }
 
     @Override

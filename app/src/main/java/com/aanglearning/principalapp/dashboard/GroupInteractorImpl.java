@@ -43,6 +43,28 @@ class GroupInteractorImpl implements GroupInteractor {
     }
 
     @Override
+    public void getPrincipalGroups(long teacherId, final OnFinishedListener listener) {
+        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
+
+        Call<List<Groups>> classList = api.getPrincipalGroups(teacherId);
+        classList.enqueue(new Callback<List<Groups>>() {
+            @Override
+            public void onResponse(Call<List<Groups>> call, Response<List<Groups>> response) {
+                if(response.isSuccessful()) {
+                    listener.onPrincipalGroupsReceived(response.body());
+                } else {
+                    listener.onError(App.getInstance().getString(R.string.request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Groups>> call, Throwable t) {
+                listener.onError(App.getInstance().getString(R.string.network_error));
+            }
+        });
+    }
+
+    @Override
     public void updateFcmToken(Authorization authorization) {
         AuthApi api = ApiClient.getAuthorizedClient().create(AuthApi.class);
 

@@ -32,6 +32,15 @@
 
             <include layout="@layout/layout_groups" />
 
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:onClick="addGroup"
+                android:src="@drawable/ic_add" />
+
         </android.support.design.widget.CoordinatorLayout>
 
     </LinearLayout>

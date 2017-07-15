@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.dashboard;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -20,10 +22,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,6 +44,7 @@ import com.aanglearning.principalapp.messagegroup.MessageActivity;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.model.Teacher;
+import com.aanglearning.principalapp.newgroup.NewGroupActivity;
 import com.aanglearning.principalapp.sqlite.SqlDbHelper;
 import com.aanglearning.principalapp.timetable.TimetableActivity;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
@@ -52,6 +57,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,17 +65,30 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DashboardActivity extends AppCompatActivity implements GroupView {
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
-    @BindView(R.id.navigation_view) NavigationView navigationView;
-    @BindView(R.id.drawer) DrawerLayout drawerLayout;
-    @BindView(R.id.noGroups) LinearLayout noGroups;
-    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout)
+    SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.navigation_view)
+    NavigationView navigationView;
+    @BindView(R.id.drawer)
+    DrawerLayout drawerLayout;
+    @BindView(R.id.noGroups)
+    LinearLayout noGroups;
+    @BindView(R.id.otherGroups)
+    SwitchCompat otherGroups;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     private GroupPresenter presenter;
     private GroupAdapter adapter;
     private Teacher teacher;
+
+    final static int REQ_CODE = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +134,21 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
         hideDrawerItem();
 
+        otherGroups.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    fab.setVisibility(View.GONE);
+                    adapter.replaceData(new ArrayList<Groups>(0));
+                    presenter.getGroups(teacher.getSchoolId());
+                } else {
+                    fab.setVisibility(View.VISIBLE);
+                    adapter.replaceData(new ArrayList<Groups>(0));
+                    presenter.getPrincipalGroups(teacher.getId());
+                }
+            }
+        });
+
         refreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
                 ContextCompat.getColor(this, R.color.colorAccent),
@@ -124,30 +158,42 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.getGroups(teacher.getSchoolId());
+                loadData();
             }
         });
 
-        if(NetworkUtil.isNetworkAvailable(this)) {
-            presenter.getGroups(teacher.getSchoolId());
+        loadData();
+    }
+
+    private void loadData() {
+        if (NetworkUtil.isNetworkAvailable(this)) {
+            loadOnlineData();
         } else {
             loadOfflineData();
         }
     }
 
+    private void loadOnlineData() {
+        if(otherGroups.isChecked()) {
+            presenter.getGroups(teacher.getSchoolId());
+        } else {
+            presenter.getPrincipalGroups(teacher.getId());
+        }
+    }
+
     private void loadOfflineData() {
-        List<Groups> groups = GroupDao.getGroups();
-        if(groups.size() == 0) {
+        List<Groups> groups;
+        if(otherGroups.isChecked()) {
+            groups = GroupDao.getGroups();
+        } else {
+            groups = GroupDao.getPrincipalGroups(teacher.getId());
+        }
+        if (groups.size() == 0) {
             noGroups.setVisibility(View.VISIBLE);
         } else {
             noGroups.setVisibility(View.INVISIBLE);
             adapter.replaceData(groups);
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -184,6 +230,15 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         if (!service.getIsTimetable()) menu.findItem(R.id.timetable_item).setVisible(false);
     }
 
+    public void addGroup(View view) {
+        if (NetworkUtil.isNetworkAvailable(this)) {
+            Intent intent = new Intent(this, NewGroupActivity.class);
+            startActivityForResult(intent, REQ_CODE);
+        } else {
+            showSnackbar("You are offline,check your internet.");
+        }
+    }
+
     private void showSnackbar(String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
@@ -206,15 +261,29 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
     @Override
     public void setGroups(List<Groups> groups) {
-        if(groups.size() == 0) {
+        if (groups.size() == 0) {
             GroupDao.clear();
             noGroups.setVisibility(View.VISIBLE);
         } else {
             noGroups.setVisibility(View.INVISIBLE);
             adapter.replaceData(groups);
+            GroupDao.clear();
             backupGroups(groups);
         }
-        refreshLayout.setRefreshing(false);
+        updateFcmToken();
+    }
+
+    @Override
+    public void setPrincipalGroups(List<Groups> groups) {
+        if (groups.size() == 0) {
+            GroupDao.clearPrincipalGroup();
+            noGroups.setVisibility(View.VISIBLE);
+        } else {
+            noGroups.setVisibility(View.INVISIBLE);
+            adapter.replaceData(groups);
+            GroupDao.clearPrincipalGroup();
+            backupGroups(groups);
+        }
         updateFcmToken();
     }
 
@@ -222,14 +291,13 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                GroupDao.clear();
                 GroupDao.insertMany(groups);
             }
         }).start();
     }
 
     private void updateFcmToken() {
-        if(!SharedPreferenceUtil.isFcmTokenSaved(DashboardActivity.this)) {
+        if (!SharedPreferenceUtil.isFcmTokenSaved(DashboardActivity.this)) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -240,37 +308,36 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.dashboard_item:
-                                startActivity(new Intent(DashboardActivity.this, DashboardActivity.class));
-                                break;
-                            case R.id.attendance_item:
-                                startActivity(new Intent(DashboardActivity.this, AttendanceActivity.class));
-                                break;
-                            case R.id.homework_item:
-                                startActivity(new Intent(DashboardActivity.this, HomeworkActivity.class));
-                                break;
-                            case R.id.timetable_item:
-                                startActivity(new Intent(DashboardActivity.this, TimetableActivity.class));
-                                break;
-                            case R.id.chat_item:
-                                startActivity(new Intent(DashboardActivity.this, ChatsActivity.class));
-                                break;
-                            case R.id.logout_item:
-                                logout();
-                                break;
-                            default:
-                                break;
-                        }
-                        menuItem.setChecked(false);
-                        drawerLayout.closeDrawers();
-                        return false;
-                    }
-                });
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.dashboard_item:
+                        startActivity(new Intent(DashboardActivity.this, DashboardActivity.class));
+                        break;
+                    case R.id.attendance_item:
+                        startActivity(new Intent(DashboardActivity.this, AttendanceActivity.class));
+                        break;
+                    case R.id.homework_item:
+                        startActivity(new Intent(DashboardActivity.this, HomeworkActivity.class));
+                        break;
+                    case R.id.timetable_item:
+                        startActivity(new Intent(DashboardActivity.this, TimetableActivity.class));
+                        break;
+                    case R.id.chat_item:
+                        startActivity(new Intent(DashboardActivity.this, ChatsActivity.class));
+                        break;
+                    case R.id.logout_item:
+                        logout();
+                        break;
+                    default:
+                        break;
+                }
+                menuItem.setChecked(false);
+                drawerLayout.closeDrawers();
+                return false;
+            }
+        });
     }
 
     private void logout() {
@@ -285,7 +352,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 finish();
             }
         });
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener(){
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -300,13 +367,13 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         TextView tv = (TextView) hView.findViewById(R.id.name);
         tv.setText(teacher.getName());
 
-        if(PermissionUtil.getStoragePermissionStatus(this)) {
+        if (PermissionUtil.getStoragePermissionStatus(this)) {
             File dir = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/" + teacher.getSchoolId());
             if (!dir.exists()) {
                 dir.mkdirs();
             }
             final File file = new File(dir, teacher.getImage());
-            if(file.exists()) {
+            if (file.exists()) {
                 imageView.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
             } else {
                 Picasso.with(this)
@@ -315,7 +382,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                         .into(imageView, new Callback() {
                             @Override
                             public void onSuccess() {
-                                Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
                                 try {
                                     FileOutputStream fos = new FileOutputStream(file);
                                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -340,7 +407,15 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             Intent intent = new Intent(DashboardActivity.this, MessageActivity.class);
             intent.putExtra("groupId", group.getId());
             intent.putExtra("groupName", group.getName());
+            intent.putExtra("isPrincipal", group.getCreatorRole());
             startActivity(intent);
         }
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            loadData();
+        }
+    }
 }

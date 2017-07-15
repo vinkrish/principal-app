@@ -3,6 +3,7 @@
 
     <string name="dashboard">Dashboard</string>
     <string name="groups">Groups</string>
+    <string name="others">Others</string>
     <string name="attendance">Attendance</string>
     <string name="homework">Homework</string>
     <string name="no_homework">No homework!</string>
@@ -19,6 +20,7 @@
     <string name="save">Save</string>
 
     <string name="no_groups">No groups created</string>
+    <string name="type_your_message">Enter msg</string>
     <string name="group_info">Group Info</string>
     <string name="tap_group">Tap here for group info</string>
     <string name="group_name">Group Name</string>
@@ -52,6 +54,8 @@
     <string name="afternoon">Afternoon</string>
     <string name="period">Period</string>
     <string name="absentees">Absentees</string>
+    <string name="for_class">This group is for class</string>
+    <string name="for_school">This group is for school</string>
 
     <string name="logout">Logout</string>
     <string name="refresh">Refresh</string>
@@ -63,4 +67,5 @@
     <string name="title_activity_user_group">Group Members</string>
     <string name="title_activity_new_chat">New Chat</string>
     <string name="title_activity_timetable">Timetable</string>
+    <string name="title_activity_new_group">New Group</string>
 </resources>

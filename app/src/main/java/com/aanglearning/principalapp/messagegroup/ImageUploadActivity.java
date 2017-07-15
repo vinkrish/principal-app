@@ -1,4 +1,4 @@
-package com.aanglearning.principalapp.util;
+package com.aanglearning.principalapp.messagegroup;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -27,21 +27,26 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.util.Constants;
+import com.aanglearning.principalapp.util.NetworkUtil;
+import com.aanglearning.principalapp.util.PermissionUtil;
+import com.aanglearning.principalapp.util.SharedPreferenceUtil;
+import com.aanglearning.principalapp.util.Util;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.URISyntaxException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.zelory.compressor.Compressor;
 
-public class ImageUploadActivity extends AppCompatActivity implements
-        ActivityCompat.OnRequestPermissionsResultCallback{
+public class ImageUploadActivity extends AppCompatActivity
+        implements ActivityCompat.OnRequestPermissionsResultCallback {
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
     @BindView(R.id.image_view)
@@ -52,11 +57,10 @@ public class ImageUploadActivity extends AppCompatActivity implements
     EditText newMsg;
 
     private static final String TAG = "ImageUploadActivity";
+    private static final int WRITE_STORAGE_PERMISSION = 666;
     private String imagePath;
     private String imageName;
     private TransferUtility transferUtility;
-
-    private static final int WRITE_STORAGE_PERMISSION = 666;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +74,7 @@ public class ImageUploadActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         progressBar.setVisibility(View.GONE);
-        setResult(Activity.RESULT_OK, new Intent());
+        setResult(Activity.RESULT_CANCELED, new Intent());
         finish();
     }
 
@@ -78,6 +82,8 @@ public class ImageUploadActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            //Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+            //resume tasks needing this permission
             imagePicker();
         } else {
             showSnackbar("Permission has been denied");
@@ -85,7 +91,7 @@ public class ImageUploadActivity extends AppCompatActivity implements
     }
 
     private void showSnackbar(String message) {
-        Snackbar.make(coordinatorLayout, message, 2000).show();
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     public void newImageSendListener (View view) {
@@ -95,9 +101,8 @@ public class ImageUploadActivity extends AppCompatActivity implements
         }
         if (NetworkUtil.isNetworkAvailable(this)){
             progressBar.setVisibility(View.VISIBLE);
-            beginUpload(imagePath);
-        }
-        else showSnackbar("You are offline,check your internet");
+            beginUpload();
+        } else showSnackbar("You are offline,check your internet");
     }
 
     public void chooseImage (View view) {
@@ -130,8 +135,9 @@ public class ImageUploadActivity extends AppCompatActivity implements
                 Handler handler = new Handler();
                 final Runnable r = new Runnable() {
                     public void run() {
-                        Bitmap myBitmap = BitmapFactory.decodeFile(imagePath);
-                        choseImage.setImageBitmap(myBitmap);
+                        choseImage.setImageBitmap(new Compressor(ImageUploadActivity.this).compressToBitmap(new File(imagePath)));
+                        //Bitmap myBitmap = BitmapFactory.decodeFile(imagePath);
+                        //choseImage.setImageBitmap(myBitmap);
                     }
                 };
                 handler.postDelayed(r, 100);
@@ -148,9 +154,8 @@ public class ImageUploadActivity extends AppCompatActivity implements
     /*
      * Begins to upload the file specified by the file path.
      */
-    private void beginUpload(String filePath) {
-        File compressedFile = saveBitmapToFile(new File(filePath));
-        //File file = new File(filePath);
+    private void beginUpload() {
+        File compressedFile = saveBitmapToFile();
         TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, compressedFile.getName(),
                 compressedFile);
         observer.setTransferListener(new UploadListener());
@@ -266,51 +271,32 @@ public class ImageUploadActivity extends AppCompatActivity implements
                 resultIntent.putExtra("imgName", imageName);
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
+            } else if(newState.toString().equals("FAILED")) {
+                Intent resultIntent = new Intent();
+                setResult(Activity.RESULT_CANCELED, resultIntent);
+                finish();
             }
         }
     }
 
-    public File saveBitmapToFile(File file){
+    public File saveBitmapToFile(){
         try {
-            // BitmapFactory options to downsize the image
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            o.inSampleSize = 6;
-            // factor of downsizing the image
+            Bitmap selectedBitmap = ((BitmapDrawable)choseImage.getDrawable()).getBitmap();
 
-            FileInputStream inputStream = new FileInputStream(file);
-            //Bitmap selectedBitmap = null;
-            BitmapFactory.decodeStream(inputStream, null, o);
-            inputStream.close();
-
-            // The new size we want to scale to
-            final int REQUIRED_SIZE=75;
-
-            // Find the correct scale value. It should be the power of 2.
-            int scale = 1;
-            while(o.outWidth / scale / 2 >= REQUIRED_SIZE &&
-                    o.outHeight / scale / 2 >= REQUIRED_SIZE) {
-                scale *= 2;
-            }
-
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
-            inputStream = new FileInputStream(file);
-
-            Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, o2);
-            inputStream.close();
+            imageName = System.currentTimeMillis() +".jpg";
 
             // here i override the original image file
-            File dir = new File(Environment.getExternalStorageDirectory().getPath(), "AangSolutions/Images");
+            File dir = new File(Environment.getExternalStorageDirectory().getPath(),
+                    "Shikshitha/Principal/" + SharedPreferenceUtil.getTeacher(this).getSchoolId());
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            File newFile = new File(dir, file.getName());
-            imageName = file.getName();
+            File newFile = new File(dir, imageName);
+
             newFile.createNewFile();
             FileOutputStream outputStream = new FileOutputStream(newFile);
 
-            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 65, outputStream);
 
             return newFile;
         } catch (Exception e) {

@@ -190,7 +190,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             });
 
             //sharedImage.setImageResource(R.drawable.books);
-            File dir = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/Images");
+            File dir = new File(Environment.getExternalStorageDirectory().getPath(), "Shikshitha/Principal/" + schoolId);
             if (!dir.exists()) {
                 dir.mkdirs();
             }

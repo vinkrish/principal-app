@@ -16,4 +16,6 @@ interface GroupView {
     void showError(String message);
 
     void setGroups(List<Groups> groups);
+
+    void setPrincipalGroups(List<Groups> groups);
 }
