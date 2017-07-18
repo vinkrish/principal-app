@@ -67,7 +67,7 @@ class NewGroupInteractorImpl implements NewGroupInteractor {
     public void saveGroup(Groups groups, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<Groups> classList = api.saveSchoolGroup(groups);
+        Call<Groups> classList = api.saveGroup(groups);
         classList.enqueue(new Callback<Groups>() {
             @Override
             public void onResponse(Call<Groups> call, Response<Groups> response) {
