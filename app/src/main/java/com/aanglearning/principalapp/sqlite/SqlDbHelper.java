@@ -43,6 +43,10 @@ public class SqlDbHelper extends SQLiteOpenHelper implements SqlConstant {
         db.execSQL(CREATE_MESSAGE);
         db.execSQL(CREATE_USER_GROUP);
         db.execSQL(CREATE_SERVICE);
+        db.execSQL(CREATE_EVENT);
+        db.execSQL(CREATE_RECURRING_PATTERN);
+        db.execSQL(CREATE_EVENT_EXCEPTION);
+        db.execSQL(CREATE_EVENT_DATES);
     }
 
     @Override
@@ -66,6 +70,10 @@ public class SqlDbHelper extends SQLiteOpenHelper implements SqlConstant {
         db.execSQL("DROP TABLE IF EXISTS message");
         db.execSQL("DROP TABLE IF EXISTS user_group");
         db.execSQL("DROP TABLE IF EXISTS service");
+        db.execSQL("DROP TABLE IF EXISTS event");
+        db.execSQL("DROP TABLE IF EXISTS event_recurring_pattern");
+        db.execSQL("DROP TABLE IF EXISTS event_exception");
+        db.execSQL("DROP TABLE IF EXISTS event_dates");
         onCreate(db);
     }
 
@@ -90,5 +98,9 @@ public class SqlDbHelper extends SQLiteOpenHelper implements SqlConstant {
         sqliteDatabase.delete("message", null, null);
         sqliteDatabase.delete("user_group", null, null);
         sqliteDatabase.delete("service", null, null);
+        sqliteDatabase.delete("event", null, null);
+        sqliteDatabase.delete("event_recurring_pattern", null, null);
+        sqliteDatabase.delete("event_exception", null, null);
+        sqliteDatabase.delete("event_dates", null, null);
     }
 }
