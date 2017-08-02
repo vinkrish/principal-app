@@ -21,17 +21,23 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.model.Evnt;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class CompactCalendarFragment extends Fragment {
 
@@ -42,6 +48,25 @@ public class CompactCalendarFragment extends Fragment {
     private boolean shouldShow = false;
     private CompactCalendarView compactCalendarView;
     private ActionBar toolbar;
+
+    private Evnts evnts;
+
+    public static CompactCalendarFragment newInstance(Evnts evnts) {
+        CompactCalendarFragment fragment = new CompactCalendarFragment();
+        Bundle args = new Bundle();
+        if(evnts != null){
+            args.putSerializable("evnts", evnts);
+        }
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        evnts = (Evnts) args.getSerializable("evnts");
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -63,13 +88,12 @@ public class CompactCalendarFragment extends Fragment {
         // below allows you to configure colors for the current day the user has selected
         // compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.dark_red));
         compactCalendarView.setUseThreeLetterAbbreviation(false);
+        compactCalendarView.shouldDrawIndicatorsBelowSelectedDays(true);
         compactCalendarView.setFirstDayOfWeek(Calendar.MONDAY);
 
         loadEvents();
-        loadEventsForYear(2017);
-        compactCalendarView.invalidate();
 
-        logEventsByMonth(compactCalendarView);
+        compactCalendarView.invalidate();
 
         // below line will display Sunday as the first day of the week
         // compactCalendarView.setShouldShowMondayAsFirstDay(false);
@@ -208,49 +232,46 @@ public class CompactCalendarFragment extends Fragment {
     }
 
     private void loadEvents() {
-        addEvents(-1, -1);
-        addEvents(Calendar.DECEMBER, -1);
-        addEvents(Calendar.AUGUST, -1);
+        addEvnts();
     }
 
-    private void loadEventsForYear(int year) {
-        addEvents(Calendar.DECEMBER, year);
-        addEvents(Calendar.AUGUST, year);
-    }
-
-    private void logEventsByMonth(CompactCalendarView compactCalendarView) {
-        currentCalender.setTime(new Date());
-        currentCalender.set(Calendar.DAY_OF_MONTH, 1);
-        currentCalender.set(Calendar.MONTH, Calendar.AUGUST);
-        List<String> dates = new ArrayList<>();
-        for (Event e : compactCalendarView.getEventsForMonth(new Date())) {
-            dates.add(dateFormatForDisplaying.format(e.getTimeInMillis()));
+    private void addEvnts() {
+        List<Evnt> evntss = evnts.getEvents();
+        Set<String> dates = new HashSet<>();
+        for(Evnt e: evntss) {
+            dates.add(e.getStartDate());
         }
-        Log.d(TAG, "Events for Aug with simple date formatter: " + dates);
-        Log.d(TAG, "Events for Aug month using default local and timezone: " + compactCalendarView.getEventsForMonth(currentCalender.getTime()));
-    }
-
-    private void addEvents(int month, int year) {
-        currentCalender.setTime(new Date());
-        currentCalender.set(Calendar.DAY_OF_MONTH, 1);
-        Date firstDayOfMonth = currentCalender.getTime();
-        for (int i = 0; i < 6; i++) {
-            currentCalender.setTime(firstDayOfMonth);
-            if (month > -1) {
-                currentCalender.set(Calendar.MONTH, month);
+        LinkedHashMap<String, List<Evnt>> evntsList = new LinkedHashMap<>();
+        for(String date: dates) {
+            List<Evnt> evntsLis = new ArrayList<>();
+            for(Evnt e: evntss) {
+                if(e.getStartDate().equals(date)) {
+                    evntsLis.add(e);
+                }
             }
-            if (year > -1) {
-                currentCalender.set(Calendar.ERA, GregorianCalendar.AD);
-                currentCalender.set(Calendar.YEAR, year);
-            }
-            currentCalender.add(Calendar.DATE, i);
+            evntsList.put(date, evntsLis);
+        }
+        for (Map.Entry<String, List<Evnt>> entry : evntsList.entrySet()) {
+            currentCalender.setTime(getFormattedDate(entry.getKey()));
             setToMidnight(currentCalender);
-            long timeInMillis = currentCalender.getTimeInMillis();
-
-            List<Event> events = getEvents(timeInMillis, i);
-
+            List<Event> events = new ArrayList<>();
+            for(Evnt ev: entry.getValue()) {
+                Event eve = new Event(Color.argb(255, 255, 31, 31), currentCalender.getTimeInMillis(), ev.getEventTitle());
+                events.add(eve);
+            }
             compactCalendarView.addEvents(events);
         }
+    }
+
+    private Date getFormattedDate(String eventDate) {
+        SimpleDateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        Date date = new Date();
+        try {
+            date = defaultFormat.parse(eventDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 
     private List<Event> getEvents(long timeInMillis, int day) {

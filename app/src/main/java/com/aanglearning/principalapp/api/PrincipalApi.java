@@ -1,9 +1,9 @@
 package com.aanglearning.principalapp.api;
 
 import com.aanglearning.principalapp.attendance.AttendanceSet;
-import com.aanglearning.principalapp.model.Attendance;
 import com.aanglearning.principalapp.model.Chat;
 import com.aanglearning.principalapp.model.Clas;
+import com.aanglearning.principalapp.model.Evnt;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Message;
@@ -20,7 +20,6 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 /**
@@ -138,5 +137,10 @@ public interface PrincipalApi {
 
     @GET("app/timetable/section/{sectionId}")
     Call<List<Timetable>> getTimetable(@Path("sectionId") long sectionId);
+
+    //Event API
+
+    @GET("event/school/{schoolId}")
+    Call<List<Evnt>> getEvents(@Path("schoolId") long schoolId);
 
 }

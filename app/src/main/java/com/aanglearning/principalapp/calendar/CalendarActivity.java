@@ -1,25 +1,38 @@
 package com.aanglearning.principalapp.calendar;
 
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.model.Evnt;
+import com.aanglearning.principalapp.model.Teacher;
+import com.aanglearning.principalapp.util.NetworkUtil;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CalendarActivity extends AppCompatActivity {
+public class CalendarActivity extends AppCompatActivity implements EventView{
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
     @BindView(R.id.tabLayout) TabLayout tabLayout;
     @BindView(R.id.viewpager) ViewPager viewPager;
 
-    private CharSequence titles[]= {"Calendar","All Events"};
+    private EventPresenter presenter;
+    private Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +40,17 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
         ButterKnife.bind(this);
 
+        presenter = new EventPresenterImpl(this, new EventInteractorImpl());
+
+        teacher = TeacherDao.getTeacher();
+
         setUpViewPager();
+
+        if(NetworkUtil.isNetworkAvailable(this)) {
+            presenter.getEvents(teacher.getSchoolId());
+        } else {
+            //loadOfflineData();
+        }
     }
 
     private void setUpViewPager() {
@@ -47,8 +70,38 @@ public class CalendarActivity extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+    }
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), titles, 2);
+    @Override
+    public void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgess() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showError(String message) {
+        showSnackbar(message);
+    }
+
+    @Override
+    public void setEvents(List<Evnt> events) {
+        Evnts evnts = new Evnts();
+        evnts.setEvents(events);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), evnts);
         viewPager.setAdapter(adapter);
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
     }
 }
