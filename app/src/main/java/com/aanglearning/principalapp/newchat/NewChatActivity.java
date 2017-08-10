@@ -34,8 +34,7 @@ public class NewChatActivity extends AppCompatActivity implements NewChatView,
     CoordinatorLayout coordinatorLayout;
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
-    @BindView(R.id.class_spinner)
-    Spinner classSpinner;
+    @BindView(R.id.class_spinner) Spinner classSpinner;
     @BindView(R.id.section_spinner) Spinner sectionSpinner;
     @BindView(R.id.student_spinner) Spinner studentSpinner;
 

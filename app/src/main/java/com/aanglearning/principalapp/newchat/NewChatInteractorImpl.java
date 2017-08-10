@@ -19,7 +19,7 @@ import retrofit2.Response;
  * Created by Vinay on 28-04-2017.
  */
 
-public class NewChatInteractorImpl implements NewChatInteractor {
+class NewChatInteractorImpl implements NewChatInteractor {
     @Override
     public void getClassList(long schoolId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);

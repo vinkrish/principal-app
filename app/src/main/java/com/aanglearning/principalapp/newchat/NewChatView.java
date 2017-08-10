@@ -11,7 +11,7 @@ import java.util.List;
  * Created by Vinay on 28-04-2017.
  */
 
-public interface NewChatView {
+interface NewChatView {
     void showProgress();
 
     void hideProgess();

@@ -6,7 +6,7 @@ import com.aanglearning.principalapp.model.Chat;
  * Created by Vinay on 28-04-2017.
  */
 
-public interface NewChatPresenter {
+interface NewChatPresenter {
     void getClassList(long schoolId);
 
     void getSectionList(long classId);
