@@ -44,6 +44,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     private Context mContext;
     private List<Message> messages;
     private long schoolId;
+    private final OnItemClickListener listener;
 
     private static final int ITEM_TYPE_TEXT = 0;
     private static final int ITEM_TYPE_IMAGE = 1;
@@ -55,10 +56,15 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             .endConfig()
             .roundRect(10);
 
-    MessageAdapter(Context context, List<Message> messages, long schoolId) {
+    MessageAdapter(Context context, List<Message> messages, long schoolId, OnItemClickListener listener) {
         this.mContext = context;
         this.messages = messages;
         this.schoolId = schoolId;
+        this.listener = listener;
+    }
+
+    interface OnItemClickListener {
+        void onItemClick(Message message);
     }
 
     List<Message> getDataSet() {
@@ -154,7 +160,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    displayTextDialog(message);
+                    listener.onItemClick(message);
                 }
             });
         }
@@ -185,7 +191,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    displayImageDialog(message);
+                    listener.onItemClick(message);
                 }
             });
 
