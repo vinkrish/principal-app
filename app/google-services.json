@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "705510811003",
+    "firebase_url": "https://shikshitha-principal.firebaseio.com",
+    "project_id": "shikshitha-principal",
+    "storage_bucket": "shikshitha-principal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705510811003:android:d2b5b726d53c7a46",
+        "android_client_info": {
+          "package_name": "com.aanglearning.principalapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "705510811003-113e9a0e2d46vvo4ds1uvgpupblp8b3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZnlBHVZiSYkjVj0xcJ9cnAJi8MWlMXlc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
