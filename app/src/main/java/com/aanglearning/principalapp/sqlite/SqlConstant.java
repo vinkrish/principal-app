@@ -6,7 +6,7 @@ package com.aanglearning.principalapp.sqlite;
 interface SqlConstant {
 
     String DATABASE_NAME = "principal.db";
-    int DATABASE_VERSION = 3;
+    int DATABASE_VERSION = 4;
 
     String CREATE_ATTENDANCE = "CREATE TABLE attendance (" +
             "  Id INTEGER PRIMARY KEY," +
@@ -200,6 +200,7 @@ interface SqlConstant {
             " MessageType TEXT, " +
             " MessageBody TEXT, " +
             " ImageUrl TEXT, " +
+            " VideoUrl TEXT, " +
             " CreatedAt TEXT" +
             ")";
 

@@ -18,6 +18,7 @@
     <string name="select_image">Click here to choose image</string>
     <string name="send">Send</string>
     <string name="save">Save</string>
+    <string name="video">Video</string>
 
     <string name="no_groups">No groups created</string>
     <string name="type_your_message">Enter msg</string>
