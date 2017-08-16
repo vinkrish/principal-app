@@ -54,10 +54,7 @@ public class UserGroupActivity extends AppCompatActivity implements UserGroupVie
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            group = new Groups();
-            group.setId(extras.getLong("groupId"));
-            group.setName(extras.getString("groupName"));
-            groupName.setText(group.getName());
+            group = (Groups) extras.getSerializable("group");
             groupName.setText(group.getName());
         }
 

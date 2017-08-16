@@ -409,9 +409,11 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         @Override
         public void onItemClick(Groups group) {
             Intent intent = new Intent(DashboardActivity.this, MessageActivity.class);
-            intent.putExtra("groupId", group.getId());
-            intent.putExtra("groupName", group.getName());
-            intent.putExtra("isPrincipal", group.getCreatorRole());
+            Bundle args = new Bundle();
+            if(group != null){
+                args.putSerializable("group", group);
+            }
+            intent.putExtras(args);
             startActivity(intent);
         }
     };

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
+import com.aanglearning.principalapp.util.YouTubeHelper;
 import com.aanglearning.principalapp.util.YoutubeDeveloperKey;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -69,14 +70,8 @@ public class MessageViewActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
 
         if(message.getVideoUrl() != null && !message.getVideoUrl().equals("")) {
-            String pattern = "(?<=watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
-
-            Pattern compiledPattern = Pattern.compile(pattern);
-            Matcher matcher = compiledPattern.matcher(message.getVideoUrl());
-
-            if(matcher.find()){
-                videoId = matcher.group();
-            }
+            YouTubeHelper youTubeHelper = new YouTubeHelper();
+            videoId = youTubeHelper.extractVideoIdFromUrl(message.getVideoUrl());
 
             fm.beginTransaction()
                     .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -85,7 +80,7 @@ public class MessageViewActivity extends AppCompatActivity
             frag.initialize(YoutubeDeveloperKey.DEVELOPER_KEY, this);
         } else {
             fm.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in)
                     .hide(frag)
                     .commit();
         }
@@ -95,7 +90,7 @@ public class MessageViewActivity extends AppCompatActivity
         }
 
         File file = new File(Environment.getExternalStorageDirectory().getPath(),
-                "Shikshitha/Teacher/" + SharedPreferenceUtil.getTeacher(this).getSchoolId() + "/" + message.getImageUrl());
+                "Shikshitha/Principal/" + SharedPreferenceUtil.getTeacher(this).getSchoolId() + "/" + message.getImageUrl());
         if (file.exists()) {
             sharedImage.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
         }

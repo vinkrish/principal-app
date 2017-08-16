@@ -174,7 +174,7 @@ public class MessageDao {
     public static List<Message> getGroupMessagesFromId(long groupId, long messageId) {
         List<Message> messages = new ArrayList<>();
         SQLiteDatabase sqliteDatabase = AppGlobal.getSqlDbHelper().getReadableDatabase();
-        String query = "select * from message A where GroupId=" + groupId + " and Id<" + messageId + " order by Id desc limit 50";
+        String query = "select * from message where GroupId=" + groupId + " and Id<" + messageId + " order by Id desc limit 50";
         Cursor c = sqliteDatabase.rawQuery(query, null);
         c.moveToFirst();
         while (!c.isAfterLast()) {
