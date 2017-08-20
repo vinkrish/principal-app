@@ -19,6 +19,7 @@
     <string name="save">Save</string>
     <string name="video">Video</string>
 
+    <string name="nothing_shared">Nothing Shared!</string>
     <string name="no_groups">No groups created</string>
     <string name="type_your_message">Enter msg</string>
     <string name="group_info">Group Info</string>
@@ -37,6 +38,7 @@
     <string name="end_date">End Date :</string>
     <string name="start_time">Start Time :</string>
     <string name="end_time">End Time :</string>
+    <string name="show_hide_cal">Show / Hide Calendar</string>
 
     <string name="network_error">A network error has occurred.</string>
     <string name="request_error">Connection timed out.</string>
