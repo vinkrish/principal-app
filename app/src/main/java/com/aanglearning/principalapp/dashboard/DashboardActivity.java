@@ -271,7 +271,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             GroupDao.clear();
             backupGroups(groups);
         }
-        updateFcmToken();
     }
 
     @Override
@@ -285,7 +284,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             GroupDao.clearPrincipalGroup();
             backupGroups(groups);
         }
-        updateFcmToken();
     }
 
     private void backupGroups(final List<Groups> groups) {
@@ -295,17 +293,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 GroupDao.insertMany(groups);
             }
         }).start();
-    }
-
-    private void updateFcmToken() {
-        if (!SharedPreferenceUtil.isFcmTokenSaved(DashboardActivity.this)) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    presenter.updateFcmToken(SharedPreferenceUtil.getAuthorization(DashboardActivity.this));
-                }
-            }).start();
-        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {

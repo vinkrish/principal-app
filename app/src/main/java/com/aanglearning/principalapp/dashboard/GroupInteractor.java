@@ -21,6 +21,4 @@ interface GroupInteractor {
     void getGroups(long schoolId, GroupInteractor.OnFinishedListener listener);
 
     void getPrincipalGroups(long teacherId, GroupInteractor.OnFinishedListener listener);
-
-    void updateFcmToken(Authorization authorization);
 }

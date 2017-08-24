@@ -209,13 +209,12 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if (NetworkUtil.isNetworkAvailable(MessageActivity.this)) {
+                /*if (NetworkUtil.isNetworkAvailable(MessageActivity.this)) {
                     presenter.getFollowupMessages(group.getId(), adapter.getDataSet().get(adapter.getDataSet().size() - 1).getId());
-                } else {
-                    List<Message> messages = MessageDao.getGroupMessagesFromId(group.getId(),
-                            adapter.getDataSet().get(adapter.getDataSet().size() - 1).getId());
-                    adapter.updateDataSet(messages);
-                }
+                }*/
+                List<Message> messages = MessageDao.getGroupMessagesFromId(group.getId(),
+                        adapter.getDataSet().get(adapter.getDataSet().size() - 1).getId());
+                adapter.updateDataSet(messages);
             }
         };
         recyclerView.addOnScrollListener(scrollListener);
@@ -269,12 +268,6 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             recyclerView.smoothScrollToPosition(0);
             backupMessages(messages);
         }
-    }
-
-    @Override
-    public void showFollowupMessages(List<Message> messages) {
-        adapter.updateDataSet(messages);
-        backupMessages(messages);
     }
 
     private void backupMessages(final List<Message> messages) {
