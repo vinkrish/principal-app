@@ -1,4 +1,4 @@
-package com.aanglearning.principalapp.service;
+package com.aanglearning.principalapp.fcm;
 
 import android.app.IntentService;
 import android.content.Intent;

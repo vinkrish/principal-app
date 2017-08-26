@@ -14,4 +14,8 @@ interface UserGroupView {
     void showError(String message);
 
     void showUserGroup(GroupUsers groupUsers);
+
+    void userGroupSaved();
+
+    void userGroupDeleted();
 }

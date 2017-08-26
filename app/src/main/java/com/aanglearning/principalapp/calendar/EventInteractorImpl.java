@@ -16,13 +16,13 @@ import retrofit2.Response;
  * Created by Vinay on 31-07-2017.
  */
 
-public class EventInteractorImpl implements EventInteractor {
+class EventInteractorImpl implements EventInteractor {
     @Override
     public void getEvents(long schoolId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Evnt>> classList = api.getEvents(schoolId);
-        classList.enqueue(new Callback<List<Evnt>>() {
+        Call<List<Evnt>> queue = api.getEvents(schoolId);
+        queue.enqueue(new Callback<List<Evnt>>() {
             @Override
             public void onResponse(Call<List<Evnt>> call, Response<List<Evnt>> response) {
                 if(response.isSuccessful()) {

@@ -1,6 +1,9 @@
 package com.aanglearning.principalapp.usergroup;
 
 import com.aanglearning.principalapp.model.GroupUsers;
+import com.aanglearning.principalapp.model.UserGroup;
+
+import java.util.ArrayList;
 
 /**
  * Created by Vinay on 01-04-2017.
@@ -26,6 +29,22 @@ public class UserGroupPresenterImpl implements UserGroupPresenter,
     }
 
     @Override
+    public void saveUserGroup(ArrayList<UserGroup> userGroups) {
+        if (mView != null) {
+            mView.showProgress();
+            mInteractor.saveUserGroup(userGroups, this);
+        }
+    }
+
+    @Override
+    public void deleteUsers(ArrayList<UserGroup> userGroups) {
+        if (mView != null) {
+            mView.showProgress();
+            mInteractor.deleteUsers(userGroups, this);
+        }
+    }
+
+    @Override
     public void onDestroy() {
         mView = null;
     }
@@ -43,6 +62,22 @@ public class UserGroupPresenterImpl implements UserGroupPresenter,
         if (mView != null) {
             mView.showUserGroup(groupUsers);
             mView.hideProgress();
+        }
+    }
+
+    @Override
+    public void onUserGroupSaved() {
+        if(mView != null) {
+            mView.hideProgress();
+            mView.userGroupSaved();
+        }
+    }
+
+    @Override
+    public void onUsersDeleted() {
+        if(mView != null) {
+            mView.hideProgress();
+            mView.userGroupDeleted();
         }
     }
 

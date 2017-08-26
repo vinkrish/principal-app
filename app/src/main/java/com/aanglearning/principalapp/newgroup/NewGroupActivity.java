@@ -129,6 +129,7 @@ public class NewGroupActivity extends AppCompatActivity implements NewGroupView,
             LocalDate localDate = new LocalDate();
             groups.setCreatedDate(localDate.toString());
             groups.setActive(true);
+            groups.setSchoolId(teacher.getSchoolId());
             presenter.saveGroup(groups);
         }
     }

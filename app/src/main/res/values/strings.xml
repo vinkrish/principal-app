@@ -10,7 +10,11 @@
     <string name="no_timetable">No Timetable</string>
     <string name="no_chats">No Chats!</string>
     <string name="chat">Chat</string>
+    <string name="add_students">Add Student</string>
+    <string name="add_teachers">Add Teacher</string>
+    <string name="select_all">Select All</string>
     <string name="no_members">No members!</string>
+    <string name="menu_item_delete">Delete</string>
     <string name="enter_message">Enter msg</string>
     <string name="msg_if_any">Message if any..</string>
     <string name="upload_image">Upload Image</string>
@@ -18,6 +22,9 @@
     <string name="send">Send</string>
     <string name="save">Save</string>
     <string name="video">Video</string>
+    <string name="read_by">Read by</string>
+    <string name="delivered_to">Delivered to</string>
+    <string name="dash">-</string>
 
     <string name="nothing_shared">Nothing Shared!</string>
     <string name="no_groups">No groups created</string>
@@ -28,6 +35,7 @@
     <string name="members">Members</string>
     <string name="change">Change</string>
     <string name="future_date">Selected date can\'t be future to present day</string>
+    <string name="msg_recipient">Message Recipients</string>
 
     <string name="from">From :</string>
     <string name="created_at">Created at :</string>
@@ -78,7 +86,5 @@
     <string name="title_activity_timetable">Timetable</string>
     <string name="title_activity_new_group">New Group</string>
     <string name="title_activity_events">Events</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_message_recipient">Message Info</string>
 </resources>

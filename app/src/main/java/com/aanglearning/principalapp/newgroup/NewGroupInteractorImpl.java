@@ -23,8 +23,8 @@ class NewGroupInteractorImpl implements NewGroupInteractor {
     public void getClassList(long schoolId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Clas>> classList = api.getClassList(schoolId);
-        classList.enqueue(new Callback<List<Clas>>() {
+        Call<List<Clas>> queue = api.getClassList(schoolId);
+        queue.enqueue(new Callback<List<Clas>>() {
             @Override
             public void onResponse(Call<List<Clas>> call, Response<List<Clas>> response) {
                 if(response.isSuccessful()) {
@@ -45,8 +45,8 @@ class NewGroupInteractorImpl implements NewGroupInteractor {
     public void getSectionList(long classId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<List<Section>> classList = api.getSectionList(classId);
-        classList.enqueue(new Callback<List<Section>>() {
+        Call<List<Section>> queue = api.getSectionList(classId);
+        queue.enqueue(new Callback<List<Section>>() {
             @Override
             public void onResponse(Call<List<Section>> call, Response<List<Section>> response) {
                 if(response.isSuccessful()) {
@@ -67,8 +67,8 @@ class NewGroupInteractorImpl implements NewGroupInteractor {
     public void saveGroup(Groups groups, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
-        Call<Groups> classList = api.saveGroup(groups);
-        classList.enqueue(new Callback<Groups>() {
+        Call<Groups> queue = api.saveGroup(groups);
+        queue.enqueue(new Callback<Groups>() {
             @Override
             public void onResponse(Call<Groups> call, Response<Groups> response) {
                 if(response.isSuccessful()) {

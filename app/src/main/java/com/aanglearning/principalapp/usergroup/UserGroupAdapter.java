@@ -1,10 +1,13 @@
 package com.aanglearning.principalapp.usergroup;
 
+import android.content.Context;
 import android.support.annotation.UiThread;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
@@ -20,10 +23,14 @@ import butterknife.ButterKnife;
  */
 
 class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder> {
+    private Context mContext;
     private List<UserGroup> users;
+    private List<UserGroup> selected_users;
 
-    UserGroupAdapter(List<UserGroup> users) {
+    UserGroupAdapter(Context context, List<UserGroup> users, List<UserGroup> selected_users) {
+        this.mContext = context;
         this.users = users;
+        this.selected_users = selected_users;
     }
 
     public List<UserGroup> getDataSet() {
@@ -31,8 +38,9 @@ class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder>
     }
 
     @UiThread
-    void setDataSet(List<UserGroup> users) {
+    public void setDataSet(List<UserGroup> users, List<UserGroup> selected_users) {
         this.users = users;
+        this.selected_users = selected_users;
         notifyDataSetChanged();
     }
 
@@ -45,6 +53,10 @@ class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder>
     @Override
     public void onBindViewHolder(UserGroupAdapter.ViewHolder holder, int position) {
         holder.bind(users.get(position));
+        if(selected_users.contains(users.get(position)))
+            holder.item_layout.setBackgroundColor(ContextCompat.getColor(mContext, R.color.list_item_selected_state));
+        else
+            holder.item_layout.setBackgroundColor(ContextCompat.getColor(mContext, R.color.list_item_normal_state));
     }
 
     @Override
@@ -55,6 +67,8 @@ class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder>
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.name) TextView name;
         @BindView(R.id.role) TextView role;
+        @BindView(R.id.ll_listitem)
+        LinearLayout item_layout;
 
         ViewHolder(View view) {
             super(view);
@@ -65,6 +79,5 @@ class UserGroupAdapter extends RecyclerView.Adapter<UserGroupAdapter.ViewHolder>
             name.setText(userGroup.getName());
             role.setText(userGroup.getRole());
         }
-
     }
 }

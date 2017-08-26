@@ -4,14 +4,15 @@ import com.aanglearning.principalapp.attendance.AttendanceSet;
 import com.aanglearning.principalapp.model.Chat;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Evnt;
+import com.aanglearning.principalapp.model.GroupUsers;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Message;
+import com.aanglearning.principalapp.model.MessageRecipient;
 import com.aanglearning.principalapp.model.Section;
 import com.aanglearning.principalapp.model.Student;
 import com.aanglearning.principalapp.model.Timetable;
 import com.aanglearning.principalapp.model.UserGroup;
-import com.aanglearning.principalapp.model.GroupUsers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,10 @@ public interface PrincipalApi {
     @GET("message/group/{groupId}/message/{messageId}")
     Call<ArrayList<Message>> getGroupMessagesFromId(@Path("groupId") long groupId,
                                                     @Path("messageId") long messageId);
+
+    @GET("messagerecipient/{groupId}/{groupMessageId}")
+    Call<ArrayList<MessageRecipient>> getMessageRecipients(@Path("groupId") long groupId,
+                                                      @Path("groupMessageId") long groupMessageId);
 
     //UserGroup API
 

@@ -20,7 +20,7 @@ import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.dashboard.DashboardActivity;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
-import com.aanglearning.principalapp.service.FCMIntentService;
+import com.aanglearning.principalapp.fcm.FCMIntentService;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import butterknife.BindView;

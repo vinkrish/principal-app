@@ -17,8 +17,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
@@ -31,6 +35,7 @@ import android.widget.TextView;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.MessageDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.messagerecipient.MessageRecipientActivity;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.Teacher;
@@ -39,6 +44,7 @@ import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.FloatingActionButton;
 import com.aanglearning.principalapp.util.NetworkUtil;
 import com.aanglearning.principalapp.util.PermissionUtil;
+import com.aanglearning.principalapp.util.RecyclerItemClickListener;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import java.text.SimpleDateFormat;
@@ -75,6 +81,12 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     private MessagePresenter presenter;
     private Groups group;
     private MessageAdapter adapter;
+
+    private Message selectedMessage = new Message();
+    private int selectedMessagePosition, oldSelectedMessagePosition;
+    ActionMode mActionMode;
+    boolean isMessageSelect = false;
+
     private EndlessRecyclerViewScrollListener scrollListener;
     private FloatingActionButton fabButton;
 
@@ -115,7 +127,9 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
 
         if (group.getCreatorRole().equals("principal")) {
             setupFab();
-        } else {
+        }
+
+        if (!group.isSchool()) {
             getSupportActionBar().setSubtitle(R.string.tap_group);
             toolbar.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -174,7 +188,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
 
     private void getBackupMessages() {
         List<Message> messages = MessageDao.getGroupMessages(group.getId());
-        adapter.setDataSet(messages);
+        adapter.setDataSet(messages, selectedMessage);
         if (NetworkUtil.isNetworkAvailable(this)) {
             if (messages.size() == 0) {
                 presenter.getMessages(group.getId());
@@ -202,9 +216,38 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        adapter = new MessageAdapter(getApplicationContext(), new ArrayList<Message>(0), SharedPreferenceUtil.getTeacher(this).getSchoolId(),
-                onItemClickListener);
+        adapter = new MessageAdapter(getApplicationContext(), new ArrayList<Message>(0), SharedPreferenceUtil.getTeacher(this).getSchoolId());
         recyclerView.setAdapter(adapter);
+
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if(isMessageSelect) {
+                    single_select(position);
+                } else {
+                    Intent intent = new Intent(MessageActivity.this, MessageViewActivity.class);
+                    Bundle args = new Bundle();
+                    if (group != null) {
+                        args.putSerializable("message", adapter.getDataSet().get(position));
+                    }
+                    intent.putExtras(args);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                if (!isMessageSelect) {
+                    selectedMessage = new Message();
+                    isMessageSelect = true;
+
+                    if (mActionMode == null) {
+                        mActionMode = startActionMode(mActionModeCallback);
+                    }
+                    single_select(position);
+                }
+            }
+        }));
 
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
@@ -214,7 +257,9 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
                 }*/
                 List<Message> messages = MessageDao.getGroupMessagesFromId(group.getId(),
                         adapter.getDataSet().get(adapter.getDataSet().size() - 1).getId());
-                adapter.updateDataSet(messages);
+                if(messages.size() > 0) {
+                    adapter.updateDataSet(messages);
+                }
             }
         };
         recyclerView.addOnScrollListener(scrollListener);
@@ -245,6 +290,8 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         newMsgLayout.setVisibility(View.GONE);
         fabButton.showFloatingActionButton();
         newMsg.setText("");
+        youtubeURL.setText("");
+        youtubeURL.setVisibility(View.GONE);
         noMessage.setVisibility(View.GONE);
         adapter.insertDataSet(message);
         recyclerView.smoothScrollToPosition(0);
@@ -264,7 +311,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             noMessage.setVisibility(View.VISIBLE);
         } else {
             noMessage.setVisibility(View.GONE);
-            adapter.setDataSet(messages);
+            adapter.setDataSet(messages, selectedMessage);
             recyclerView.smoothScrollToPosition(0);
             backupMessages(messages);
         }
@@ -323,7 +370,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         }
-        if (newMsg.getText().toString().trim().isEmpty() && imgUrl.equals("")) {
+        if (newMsg.getText().toString().trim().isEmpty() && imgUrl.equals("") && !messageType.equals("video")) {
             showError("Please enter message");
         } else {
             if (NetworkUtil.isNetworkAvailable(this)) {
@@ -399,16 +446,63 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         return false;
     }
 
-    MessageAdapter.OnItemClickListener onItemClickListener = new MessageAdapter.OnItemClickListener() {
-        @Override
-        public void onItemClick(Message message) {
-            Intent intent = new Intent(MessageActivity.this, MessageViewActivity.class);
-            Bundle args = new Bundle();
-            if (group != null) {
-                args.putSerializable("message", message);
+    public void single_select(int position) {
+        selectedMessagePosition = position;
+        if (mActionMode != null) {
+            if(selectedMessage.getId() == adapter.getDataSet().get(position).getId() ) {
+                selectedMessage = new Message();
+                mActionMode.finish();
+                adapter.selectedItemChanged(position, selectedMessage);
+            } else {
+                selectedMessage = new Message();
+                adapter.selectedItemChanged(oldSelectedMessagePosition, selectedMessage);
+                oldSelectedMessagePosition = position;
+                selectedMessage = adapter.getDataSet().get(position);
+                adapter.selectedItemChanged(position, selectedMessage);
             }
-            intent.putExtras(args);
-            startActivity(intent);
+        }
+    }
+
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.message_recipient, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_message_recipients:
+                    selectedMessage = new Message();
+                    mActionMode.finish();
+                    adapter.selectedItemChanged(selectedMessagePosition, selectedMessage);
+
+                    Intent intent = new Intent(MessageActivity.this, MessageRecipientActivity.class);
+                    Bundle args = new Bundle();
+                    if (group != null) {
+                        args.putSerializable("message", adapter.getDataSet().get(selectedMessagePosition));
+                    }
+                    intent.putExtras(args);
+                    startActivity(intent);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+            isMessageSelect = false;
+            selectedMessage = new Message();
+            adapter.selectedItemChanged(selectedMessagePosition, selectedMessage);
         }
     };
 
@@ -416,6 +510,11 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     public void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         adapter.releaseLoaders();
     }
 }
