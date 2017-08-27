@@ -40,6 +40,7 @@ import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.usergroup.UserGroupActivity;
+import com.aanglearning.principalapp.util.DividerItemDecoration;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.FloatingActionButton;
 import com.aanglearning.principalapp.util.NetworkUtil;
@@ -161,6 +162,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             newMsg.setText("");
             youtubeURL.setText("");
             youtubeURL.setVisibility(View.GONE);
+            enterMsg.setImageResource(R.drawable.ic_send_black);
         } else {
             super.onBackPressed();
         }
@@ -212,6 +214,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(this));
         recyclerView.setItemViewCacheSize(10);
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
@@ -237,7 +240,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
 
             @Override
             public void onItemLongClick(View view, int position) {
-                if (!isMessageSelect) {
+                if (!isMessageSelect && !group.isSchool()) {
                     selectedMessage = new Message();
                     isMessageSelect = true;
 
@@ -332,6 +335,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     }
 
     public void pasteYoutubeUrl(View view) {
+        enterMsg.setImageResource(R.drawable.ic_send_white);
         CharSequence pasteString = "";
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard.getPrimaryClip() != null) {
@@ -424,16 +428,16 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
             if (newMsg.getText().toString().equals("")) {
             } else {
-                enterMsg.setImageResource(R.drawable.ic_chat_send);
+                enterMsg.setImageResource(R.drawable.ic_send_black);
             }
         }
 
         @Override
         public void afterTextChanged(Editable editable) {
             if (editable.length() == 0) {
-                enterMsg.setImageResource(R.drawable.ic_chat_send);
+                enterMsg.setImageResource(R.drawable.ic_send_black);
             } else {
-                enterMsg.setImageResource(R.drawable.ic_chat_send_active);
+                enterMsg.setImageResource(R.drawable.ic_send_white);
             }
         }
     };

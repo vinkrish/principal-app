@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#474747</color>
     <color name="colorPrimaryLight">#D7CCC8</color>
     <color name="colorAccent">#FF5252</color>
+    <color name="activity_background">#FCFCFC </color>
     <color name="default_white">#FAFAFA</color>
     <color name="black">#000000</color>
     <color name="black_light">#0D0D0D</color>
@@ -17,6 +18,6 @@
     <color name="recycler_background">#EEEEEE</color>
     <color name="recycler_card_1">#FCFCFC</color>
     <color name="recycler_card_2">#FDFDFD</color>
-    <color name="list_item_selected_state">#EEEEEE</color>
+    <color name="list_item_selected_state">#D7CCC8</color>
     <color name="list_item_normal_state">#FAFAFA</color>
 </resources>
