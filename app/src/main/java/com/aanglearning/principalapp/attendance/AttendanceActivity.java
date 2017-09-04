@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -29,6 +30,7 @@ import com.aanglearning.principalapp.model.Attendance;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Section;
 import com.aanglearning.principalapp.model.Timetable;
+import com.aanglearning.principalapp.util.Conversion;
 import com.aanglearning.principalapp.util.DatePickerFragment;
 import com.aanglearning.principalapp.util.DateUtil;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
@@ -57,6 +59,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
     @BindView(R.id.spinner_class) Spinner classSpinner;
     @BindView(R.id.spinner_section) Spinner sectionSpinner;
+    @BindView(R.id.section_layout) LinearLayout sectionLayout;
     @BindView(R.id.date_tv) TextView dateView;
     @BindView(R.id.session_spinner) Spinner sessionSpinner;
     @BindView(R.id.session_layout) LinearLayout sessionLayout;
@@ -192,11 +195,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
     @Override
     public void showSection(List<Section> sectionList) {
-        ArrayAdapter<Section> adapter = new
-                ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sectionSpinner.setAdapter(adapter);
-        sectionSpinner.setOnItemSelectedListener(this);
+        setSectionAdapter(sectionList);
         backupSection(sectionList);
     }
 
@@ -212,11 +211,26 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
     private void showOfflineSection() {
         List<Section> sectionList = SectionDao.getSectionList(((Clas) classSpinner.getSelectedItem()).getId());
+        setSectionAdapter(sectionList);
+    }
+
+    private void setSectionAdapter(List<Section> sectionList) {
         ArrayAdapter<Section> adapter = new
                 ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sectionList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sectionSpinner.setAdapter(adapter);
-        sessionSpinner.setOnItemSelectedListener(this);
+        sectionSpinner.setOnItemSelectedListener(this);
+        if(sectionList.size() == 1 && sectionList.get(0).getSectionName().equals("none")) {
+            sectionLayout.setVisibility(View.INVISIBLE);
+            sectionLayout.setLayoutParams(new LinearLayout.LayoutParams(0,0));
+        } else {
+            sectionLayout.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            int px = Conversion.dpToPx(10, getApplicationContext());
+            sectionLayout.setPadding(px, px, px, px);
+            sectionLayout.setLayoutParams(params);
+        }
     }
 
     private void showSession() {
