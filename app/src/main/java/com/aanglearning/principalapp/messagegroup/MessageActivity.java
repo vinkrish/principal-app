@@ -158,6 +158,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     public void onBackPressed() {
         if (newMsgLayout.getVisibility() == View.VISIBLE) {
             newMsgLayout.setVisibility(View.GONE);
+            fabButton.setVisibility(View.VISIBLE);
             fabButton.showFloatingActionButton();
             newMsg.setText("");
             youtubeURL.setText("");
@@ -180,6 +181,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             @Override
             public void onClick(View view) {
                 fabButton.hideFloatingActionButton();
+                fabButton.setVisibility(View.GONE);
                 newMsgLayout.setVisibility(View.VISIBLE);
                 newMsg.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
