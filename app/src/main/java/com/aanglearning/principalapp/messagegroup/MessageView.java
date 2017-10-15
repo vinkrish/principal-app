@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.messagegroup;
 
+import com.aanglearning.principalapp.model.DeletedMessage;
 import com.aanglearning.principalapp.model.Message;
 
 import java.util.List;
@@ -16,6 +17,8 @@ interface MessageView {
     void showError(String message);
 
     void onMessageSaved(Message message);
+
+    void onMessageDeleted(DeletedMessage deletedMessage);
 
     void showRecentMessages(List<Message> messages);
 

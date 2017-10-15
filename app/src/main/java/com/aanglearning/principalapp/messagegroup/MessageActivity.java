@@ -2,6 +2,7 @@ package com.aanglearning.principalapp.messagegroup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,9 +35,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.dao.DeletedMessageDao;
 import com.aanglearning.principalapp.dao.MessageDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.messagerecipient.MessageRecipientActivity;
+import com.aanglearning.principalapp.model.DeletedMessage;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.Teacher;
@@ -59,28 +63,21 @@ import butterknife.ButterKnife;
 
 public class MessageActivity extends AppCompatActivity implements MessageView, View.OnKeyListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.refreshLayout)
-    SwipeRefreshLayout refreshLayout;
-    @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
-    @BindView(R.id.noMessage)
-    LinearLayout noMessage;
-    @BindView(R.id.new_msg_layout)
-    RelativeLayout newMsgLayout;
-    @BindView(R.id.new_msg)
-    EditText newMsg;
-    @BindView(R.id.youtube_url)
-    TextView youtubeURL;
-    @BindView(R.id.enter_msg)
-    ImageView enterMsg;
+
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.noMessage) LinearLayout noMessage;
+    @BindView(R.id.new_msg_layout) RelativeLayout newMsgLayout;
+    @BindView(R.id.new_msg) EditText newMsg;
+    @BindView(R.id.youtube_url) TextView youtubeURL;
+    @BindView(R.id.enter_msg) ImageView enterMsg;
 
     private static final String TAG = "MessageActivity";
     private MessagePresenter presenter;
     private Groups group;
+    private Teacher teacher;
     private MessageAdapter adapter;
 
     private Message selectedMessage = new Message();
@@ -113,19 +110,6 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
 
         setupRecyclerView();
 
-        refreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(this, R.color.colorPrimary),
-                ContextCompat.getColor(this, R.color.colorAccent),
-                ContextCompat.getColor(this, R.color.colorPrimaryDark)
-        );
-
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getBackupMessages();
-            }
-        });
-
         if (group.getCreatorRole().equals("principal")) {
             setupFab();
         }
@@ -145,6 +129,8 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
                 }
             });
         }
+
+        teacher = TeacherDao.getTeacher();
 
         newMsg.setOnKeyListener(this);
         newMsg.addTextChangedListener(newMsgWatcher);
@@ -268,6 +254,19 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             }
         };
         recyclerView.addOnScrollListener(scrollListener);
+
+        refreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                ContextCompat.getColor(this, R.color.colorAccent),
+                ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        );
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getBackupMessages();
+            }
+        });
     }
 
     private void showSnackbar(String message) {
@@ -305,9 +304,16 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     }
 
     @Override
+    public void onMessageDeleted(DeletedMessage deletedMessage) {
+        adapter.deleteDataSet(selectedMessagePosition);
+        DeletedMessageDao.insertDeletedMessages(Collections.singletonList(deletedMessage));
+    }
+
+    @Override
     public void showRecentMessages(List<Message> messages) {
         adapter.insertDataSet(messages);
         recyclerView.smoothScrollToPosition(0);
+        syncDeletedMessages();
         backupMessages(messages);
     }
 
@@ -321,6 +327,7 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
             recyclerView.smoothScrollToPosition(0);
             backupMessages(messages);
         }
+        syncDeletedMessages();
     }
 
     private void backupMessages(final List<Message> messages) {
@@ -330,6 +337,15 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
                 MessageDao.insertGroupMessages(messages);
             }
         }).start();
+    }
+
+    private void syncDeletedMessages() {
+        DeletedMessage deletedMessage = DeletedMessageDao.getNewestDeletedMessage(group.getId());
+        if(deletedMessage.getGroupId() != 0) {
+            presenter.getRecentDeletedMessages(group.getId(), deletedMessage.getId());
+        } else {
+            presenter.getDeletedMessages(group.getId());
+        }
     }
 
     public void uploadImage(View view) {
@@ -382,7 +398,6 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         } else {
             if (NetworkUtil.isNetworkAvailable(this)) {
                 Message message = new Message();
-                Teacher teacher = TeacherDao.getTeacher();
                 message.setSenderId(teacher.getId());
                 message.setSenderName(teacher.getName());
                 message.setSenderRole("principal");
@@ -486,6 +501,31 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
+                case R.id.action_delete:
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MessageActivity.this);
+                    alertDialog.setMessage("Are you sure you want to delete?");
+                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            selectedMessage = new Message();
+                            mActionMode.finish();
+                            DeletedMessage deletedMessage = new DeletedMessage();
+                            deletedMessage.setMessageId(adapter.getDataSet().get(selectedMessagePosition).getId());
+                            deletedMessage.setSenderId(teacher.getId());
+                            deletedMessage.setRecipientId(0);
+                            deletedMessage.setGroupId(group.getId());
+                            deletedMessage.setDeletedAt(System.currentTimeMillis());
+                            presenter.deleteMessage(deletedMessage);
+                        }
+                    });
+                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    alertDialog.show();
+                    return true;
                 case R.id.action_message_recipients:
                     selectedMessage = new Message();
                     mActionMode.finish();
