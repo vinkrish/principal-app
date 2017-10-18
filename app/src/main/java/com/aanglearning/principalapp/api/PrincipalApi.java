@@ -4,6 +4,7 @@ import com.aanglearning.principalapp.attendance.AttendanceSet;
 import com.aanglearning.principalapp.model.AppVersion;
 import com.aanglearning.principalapp.model.Chat;
 import com.aanglearning.principalapp.model.Clas;
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.DeletedMessage;
 import com.aanglearning.principalapp.model.Evnt;
 import com.aanglearning.principalapp.model.GroupUsers;
@@ -56,8 +57,13 @@ public interface PrincipalApi {
     @POST("groups")
     Call<Groups> saveGroup(@Body Groups groups);
 
-    @POST("groups/principal/school")
-    Call<Groups> saveSchoolGroup(@Body Groups groups);
+    @GET("groups/principal/{schoolId}/group/{id}")
+    Call<List<Groups>> getGroupsAboveId(@Path("schoolId") long schoolId,
+                                        @Path("id") long id);
+
+    @GET("groups/principal/teacher/{teacherId}/group/{id}")
+    Call<List<Groups>> getPrincipalGroupsAboveId(@Path("teacherId") long teacherId,
+                                                 @Path("id") long id);
 
     @GET("groups/principal/{schoolId}")
     Call<List<Groups>> getGroups(@Path("schoolId") long schoolId);
@@ -67,6 +73,16 @@ public interface PrincipalApi {
 
     @GET("groups/{groupId}")
     Call<Void> deleteGroup(@Path("groupId") long groupId);
+
+    @POST("deletedgroup")
+    Call<DeletedGroup> deleteGroup(@Body DeletedGroup deletedGroup);
+
+    @GET("deletedgroup/{id}/school/{schoolId}")
+    Call<ArrayList<DeletedGroup>> getDeletedGroupsAboveId(@Path("schoolId") long schoolId,
+                                                          @Path("id") long id);
+
+    @GET("deletedgroup/school/{schoolId}")
+    Call<ArrayList<DeletedGroup>> getDeletedGroups(@Path("schoolId") long schoolId);
 
     @POST("message")
     Call<Message> saveMessage(@Body Message message);

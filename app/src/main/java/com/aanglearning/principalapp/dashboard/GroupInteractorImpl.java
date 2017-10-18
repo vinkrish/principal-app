@@ -21,6 +21,28 @@ import retrofit2.Response;
 
 class GroupInteractorImpl implements GroupInteractor {
     @Override
+    public void getGroupsAboveId(long schoolId, long id, final OnFinishedListener listener) {
+        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
+
+        Call<List<Groups>> queue = api.getGroupsAboveId(schoolId, id);
+        queue.enqueue(new Callback<List<Groups>>() {
+            @Override
+            public void onResponse(Call<List<Groups>> call, Response<List<Groups>> response) {
+                if(response.isSuccessful()) {
+                    listener.onRecentGroupsReceived(response.body());
+                } else {
+                    listener.onError(App.getInstance().getString(R.string.request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Groups>> call, Throwable t) {
+                listener.onError(App.getInstance().getString(R.string.network_error));
+            }
+        });
+    }
+
+    @Override
     public void getGroups(long userId, final OnFinishedListener listener) {
         PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
 
@@ -30,6 +52,28 @@ class GroupInteractorImpl implements GroupInteractor {
             public void onResponse(Call<List<Groups>> call, Response<List<Groups>> response) {
                 if(response.isSuccessful()) {
                     listener.onGroupsReceived(response.body());
+                } else {
+                    listener.onError(App.getInstance().getString(R.string.request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Groups>> call, Throwable t) {
+                listener.onError(App.getInstance().getString(R.string.network_error));
+            }
+        });
+    }
+
+    @Override
+    public void getPrincipalGroupsAboveId(long userId, long id, final OnFinishedListener listener) {
+        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
+
+        Call<List<Groups>> queue = api.getPrincipalGroupsAboveId(userId, id);
+        queue.enqueue(new Callback<List<Groups>>() {
+            @Override
+            public void onResponse(Call<List<Groups>> call, Response<List<Groups>> response) {
+                if(response.isSuccessful()) {
+                    listener.onRecentPrincipalGroupsReceived(response.body());
                 } else {
                     listener.onError(App.getInstance().getString(R.string.request_error));
                 }

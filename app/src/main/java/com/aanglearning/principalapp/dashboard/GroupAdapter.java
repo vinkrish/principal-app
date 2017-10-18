@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.dashboard;
 
+import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.aanglearning.principalapp.model.Groups;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,8 +43,26 @@ class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
         this.listener = listener;
     }
 
+    List<Groups> getDataSet() {
+        return items;
+    }
+
+    @UiThread
     void replaceData(List<Groups> items) {
         this.items = items;
+        notifyDataSetChanged();
+    }
+
+    @UiThread
+    void updateDataSet(List<Groups> itms) {
+        int pos = items.size();
+        this.items.addAll(itms);
+        notifyItemRangeInserted(pos, items.size() - 1);
+    }
+
+    @UiThread
+    void invalidate() {
+        this.items = new ArrayList<>();
         notifyDataSetChanged();
     }
 

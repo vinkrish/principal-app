@@ -6,7 +6,7 @@ package com.aanglearning.principalapp.sqlite;
 interface SqlConstant {
 
     String DATABASE_NAME = "principal.db";
-    int DATABASE_VERSION = 9;
+    int DATABASE_VERSION = 10;
 
     String CREATE_ATTENDANCE = "CREATE TABLE attendance (" +
             "  Id INTEGER PRIMARY KEY," +
@@ -133,6 +133,14 @@ interface SqlConstant {
             " CreatedDate TEXT, " +
             " IsActive INTEGER, " +
             " SchoolId INTEGER " +
+            ")";
+
+    String CREATE_DELETED_GROUP = "CREATE TABLE deleted_group (" +
+            " Id INTEGER, " +
+            " SenderId INTEGER, " +
+            " GroupId INTEGER, " +
+            " SchoolId INTEGER, " +
+            " DeletedAt INTEGER" +
             ")";
 
     String CREATE_CHAT = "CREATE TABLE chat (" +

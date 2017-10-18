@@ -138,15 +138,8 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         otherGroups.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    fab.setVisibility(View.GONE);
-                    adapter.replaceData(new ArrayList<Groups>(0));
-                    presenter.getGroups(teacher.getSchoolId());
-                } else {
-                    fab.setVisibility(View.VISIBLE);
-                    adapter.replaceData(new ArrayList<Groups>(0));
-                    presenter.getPrincipalGroups(teacher.getId());
-                }
+                adapter.invalidate();
+                loadData();
             }
         });
 
@@ -159,7 +152,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadData();
+                loadOnlineData();
             }
         });
 
@@ -167,26 +160,35 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     }
 
     private void loadData() {
+        loadOfflineData();
         if (NetworkUtil.isNetworkAvailable(this)) {
             loadOnlineData();
-        } else {
-            loadOfflineData();
         }
     }
 
     private void loadOnlineData() {
         if(otherGroups.isChecked()) {
-            presenter.getGroups(teacher.getSchoolId());
+            if(adapter.getItemCount() == 0) {
+                presenter.getGroups(teacher.getSchoolId());
+            } else {
+                presenter.getGroupsAboveId(teacher.getSchoolId(), adapter.getDataSet().get(adapter.getItemCount() - 1).getId());
+            }
         } else {
-            presenter.getPrincipalGroups(teacher.getId());
+            if(adapter.getItemCount() == 0) {
+                presenter.getPrincipalGroups(teacher.getId());
+            } else {
+                presenter.getPrincipalGroupsAboveId(teacher.getId(), adapter.getDataSet().get(adapter.getItemCount() - 1).getId() );
+            }
         }
     }
 
     private void loadOfflineData() {
         List<Groups> groups;
         if(otherGroups.isChecked()) {
+            fab.setVisibility(View.GONE);
             groups = GroupDao.getGroups();
         } else {
+            fab.setVisibility(View.VISIBLE);
             groups = GroupDao.getPrincipalGroups(teacher.getId());
         }
         if (groups.size() == 0) {
@@ -257,31 +259,38 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     @Override
     public void showError(String message) {
         showSnackbar(message);
-        loadOfflineData();
+    }
+
+    @Override
+    public void setRecentGroups(List<Groups> groups) {
+        adapter.updateDataSet(groups);
+        backupGroups(groups);
     }
 
     @Override
     public void setGroups(List<Groups> groups) {
         if (groups.size() == 0) {
-            GroupDao.clear();
             noGroups.setVisibility(View.VISIBLE);
         } else {
             noGroups.setVisibility(View.INVISIBLE);
             adapter.replaceData(groups);
-            GroupDao.clear();
             backupGroups(groups);
         }
     }
 
     @Override
+    public void setRecentPrincipalGroups(List<Groups> groups) {
+        adapter.updateDataSet(groups);
+        backupGroups(groups);
+    }
+
+    @Override
     public void setPrincipalGroups(List<Groups> groups) {
         if (groups.size() == 0) {
-            GroupDao.clearPrincipalGroup();
             noGroups.setVisibility(View.VISIBLE);
         } else {
             noGroups.setVisibility(View.INVISIBLE);
             adapter.replaceData(groups);
-            GroupDao.clearPrincipalGroup();
             backupGroups(groups);
         }
     }

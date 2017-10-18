@@ -79,7 +79,7 @@ public class GroupDao {
     public static List<Groups> getGroups() {
         List<Groups> groups = new ArrayList<>();
         SQLiteDatabase sqliteDatabase = AppGlobal.getSqlDbHelper().getReadableDatabase();
-        Cursor c = sqliteDatabase.rawQuery("select * from groups", null);
+        Cursor c = sqliteDatabase.rawQuery("select * from groups where CreatorRole != 'principal' order by Id asc", null);
         c.moveToFirst();
         while (!c.isAfterLast()) {
             Groups group = new Groups();
@@ -106,7 +106,7 @@ public class GroupDao {
     public static List<Groups> getPrincipalGroups(long teacherId) {
         List<Groups> groups = new ArrayList<>();
         SQLiteDatabase sqliteDatabase = AppGlobal.getSqlDbHelper().getReadableDatabase();
-        Cursor c = sqliteDatabase.rawQuery("select * from groups where CreatorRole = 'principal' and CreatedBy = " + teacherId, null);
+        Cursor c = sqliteDatabase.rawQuery("select * from groups where CreatorRole = 'principal' and CreatedBy = " + teacherId + " order by Id asc", null);
         c.moveToFirst();
         while (!c.isAfterLast()) {
             Groups group = new Groups();
@@ -140,13 +140,4 @@ public class GroupDao {
         return 1;
     }
 
-    public static int clearPrincipalGroup() {
-        SQLiteDatabase sqliteDb = AppGlobal.getSqlDbHelper().getWritableDatabase();
-        try {
-            sqliteDb.execSQL("delete from groups where CreatorRole = 'principal'");
-        } catch(SQLException e) {
-            return 0;
-        }
-        return 1;
-    }
 }

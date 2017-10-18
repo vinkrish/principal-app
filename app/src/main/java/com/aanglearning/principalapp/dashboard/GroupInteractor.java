@@ -13,12 +13,20 @@ interface GroupInteractor {
     interface OnFinishedListener {
         void onError(String message);
 
+        void onRecentGroupsReceived(List<Groups> groupsList);
+
         void onGroupsReceived(List<Groups> groupsList);
+
+        void onRecentPrincipalGroupsReceived(List<Groups> groupsList);
 
         void onPrincipalGroupsReceived(List<Groups> groupsList);
     }
 
+    void getGroupsAboveId(long schoolId, long id, GroupInteractor.OnFinishedListener listener);
+
     void getGroups(long schoolId, GroupInteractor.OnFinishedListener listener);
+
+    void getPrincipalGroupsAboveId(long userId, long id, GroupInteractor.OnFinishedListener listener);
 
     void getPrincipalGroups(long teacherId, GroupInteractor.OnFinishedListener listener);
 }

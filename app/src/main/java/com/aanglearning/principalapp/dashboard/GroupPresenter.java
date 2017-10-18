@@ -7,7 +7,11 @@ import com.aanglearning.principalapp.model.Authorization;
  */
 
 interface GroupPresenter {
+    void getGroupsAboveId(long schoolId, long id);
+
     void getGroups(long schoolId);
+
+    void getPrincipalGroupsAboveId(long teacherId, long id);
 
     void getPrincipalGroups(long teacherId);
 
