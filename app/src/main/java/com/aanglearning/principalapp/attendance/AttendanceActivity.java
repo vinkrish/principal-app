@@ -52,10 +52,8 @@ import butterknife.ButterKnife;
 
 public class AttendanceActivity extends AppCompatActivity implements AttendanceView,
         AdapterView.OnItemSelectedListener {
-
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
     @BindView(R.id.spinner_class) Spinner classSpinner;
     @BindView(R.id.spinner_section) Spinner sectionSpinner;
@@ -79,20 +77,17 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance);
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         presenter = new AttendancePresenterImpl(this, new AttendanceInteractorImpl());
         setDefaultDate();
 
-        absenteesRecycler.setLayoutManager(new LinearLayoutManager(this));
-        absenteesRecycler.setNestedScrollingEnabled(false);
-        absenteesRecycler.setItemAnimator(new DefaultItemAnimator());
-        absenteesRecycler.addItemDecoration(new DividerItemDecoration(this));
-
-        attendanceAdapter = new AttendanceAdapter(new ArrayList<Attendance>(0));
-        absenteesRecycler.setAdapter(attendanceAdapter);
+        setupRecyclerView();
 
         showSession();
 
@@ -101,6 +96,16 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         } else {
             showOfflineClass();
         }
+    }
+
+    private void setupRecyclerView() {
+        absenteesRecycler.setLayoutManager(new LinearLayoutManager(this));
+        absenteesRecycler.setNestedScrollingEnabled(false);
+        absenteesRecycler.setItemAnimator(new DefaultItemAnimator());
+        absenteesRecycler.addItemDecoration(new DividerItemDecoration(this));
+
+        attendanceAdapter = new AttendanceAdapter(new ArrayList<Attendance>(0));
+        absenteesRecycler.setAdapter(attendanceAdapter);
 
         refreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
@@ -116,12 +121,6 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
                 }
             }
         });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
     }
 
     private void showSnackbar(String message) {
@@ -474,4 +473,9 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
 }

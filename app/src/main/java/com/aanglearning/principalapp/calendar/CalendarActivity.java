@@ -22,15 +22,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class CalendarActivity extends AppCompatActivity implements EventView{
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.progress_bar)
-    ProgressBar progressBar;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.tabLayout) TabLayout tabLayout;
     @BindView(R.id.viewpager) ViewPager viewPager;
 
     private EventPresenter presenter;
-    private Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +37,7 @@ public class CalendarActivity extends AppCompatActivity implements EventView{
 
         presenter = new EventPresenterImpl(this, new EventInteractorImpl());
 
-        teacher = TeacherDao.getTeacher();
+        Teacher teacher = TeacherDao.getTeacher();
 
         setUpViewPager();
 

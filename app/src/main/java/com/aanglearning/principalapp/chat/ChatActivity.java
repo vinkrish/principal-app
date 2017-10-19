@@ -43,8 +43,7 @@ import butterknife.ButterKnife;
 
 public class ChatActivity extends AppCompatActivity implements ChatView {
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.no_chats) LinearLayout noChats;
     @BindView(R.id.new_msg) EditText newMsg;
@@ -62,7 +61,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

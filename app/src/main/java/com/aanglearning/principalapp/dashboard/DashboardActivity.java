@@ -66,24 +66,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DashboardActivity extends AppCompatActivity implements GroupView {
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.refreshLayout)
-    SwipeRefreshLayout refreshLayout;
-    @BindView(R.id.navigation_view)
-    NavigationView navigationView;
-    @BindView(R.id.drawer)
-    DrawerLayout drawerLayout;
-    @BindView(R.id.noGroups)
-    LinearLayout noGroups;
-    @BindView(R.id.otherGroups)
-    SwitchCompat otherGroups;
-    @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.navigation_view) NavigationView navigationView;
+    @BindView(R.id.drawer) DrawerLayout drawerLayout;
+    @BindView(R.id.noGroups) LinearLayout noGroups;
+    @BindView(R.id.otherGroups) SwitchCompat otherGroups;
+    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.fab) FloatingActionButton fab;
 
     private GroupPresenter presenter;
     private GroupAdapter adapter;
@@ -96,9 +87,11 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         //getSupportActionBar().setTitle("Principal");
-
         teacher = TeacherDao.getTeacher();
 
         toolbar.setTitle(teacher.getName());
@@ -106,13 +99,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         setSupportActionBar(toolbar);
 
         presenter = new GroupPresenterImpl(this, new GroupInteractorImpl());
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setNestedScrollingEnabled(false);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this));
-        adapter = new GroupAdapter(new ArrayList<Groups>(0), mItemListener);
-        recyclerView.setAdapter(adapter);
 
         setupDrawerContent(navigationView);
 
@@ -143,6 +129,19 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             }
         });
 
+        setupRecyclerView();
+
+        loadData();
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(this));
+        adapter = new GroupAdapter(new ArrayList<Groups>(0), mItemListener);
+        recyclerView.setAdapter(adapter);
+
         refreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),
                 ContextCompat.getColor(this, R.color.colorAccent),
@@ -155,8 +154,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 loadOnlineData();
             }
         });
-
-        loadData();
     }
 
     private void loadData() {
@@ -199,21 +196,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (isNavDrawerOpen()) {
-            closeNavDrawer();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     protected boolean isNavDrawerOpen() {
         return drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START);
     }
@@ -252,7 +234,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     }
 
     @Override
-    public void hideProgess() {
+    public void hideProgress() {
         refreshLayout.setRefreshing(false);
     }
 
@@ -418,6 +400,21 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             loadData();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isNavDrawerOpen()) {
+            closeNavDrawer();
+        } else {
+            super.onBackPressed();
         }
     }
 }

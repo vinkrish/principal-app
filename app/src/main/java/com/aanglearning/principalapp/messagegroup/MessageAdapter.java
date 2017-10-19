@@ -185,8 +185,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
         @BindView(R.id.sender_name) TextView senderName;
         @BindView(R.id.created_date) TextView createdDate;
         @BindView(R.id.message) TextView messageTV;
-        @BindView(R.id.card_view)
-        RelativeLayout cardView;
+        @BindView(R.id.card_view) RelativeLayout cardView;
 
         TextHolder(View view) {
             super(view);
@@ -279,16 +278,11 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     }
 
     class VideoHolder extends ViewHolder {
-        @BindView(R.id.image_view)
-        ImageView senderImage;
-        @BindView(R.id.sender_name)
-        TextView senderName;
-        @BindView(R.id.created_date)
-        TextView createdDate;
-        @BindView(R.id.message)
-        TextView messageTV;
-        @BindView(R.id.thumbnail)
-        YouTubeThumbnailView thumbnail;
+        @BindView(R.id.image_view) ImageView senderImage;
+        @BindView(R.id.sender_name) TextView senderName;
+        @BindView(R.id.created_date) TextView createdDate;
+        @BindView(R.id.message) TextView messageTV;
+        @BindView(R.id.thumbnail) YouTubeThumbnailView thumbnail;
         @BindView(R.id.card_view) RelativeLayout cardView;
 
         VideoHolder(View view) {
@@ -329,18 +323,12 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     }
 
     class VideoImageHolder extends ViewHolder {
-        @BindView(R.id.image_view)
-        ImageView senderImage;
-        @BindView(R.id.sender_name)
-        TextView senderName;
-        @BindView(R.id.created_date)
-        TextView createdDate;
-        @BindView(R.id.thumbnail)
-        YouTubeThumbnailView thumbnail;
-        @BindView(R.id.shared_image)
-        ImageView sharedImage;
-        @BindView(R.id.message)
-        TextView messageTV;
+        @BindView(R.id.image_view) ImageView senderImage;
+        @BindView(R.id.sender_name) TextView senderName;
+        @BindView(R.id.created_date) TextView createdDate;
+        @BindView(R.id.thumbnail) YouTubeThumbnailView thumbnail;
+        @BindView(R.id.shared_image) ImageView sharedImage;
+        @BindView(R.id.message) TextView messageTV;
         @BindView(R.id.card_view) RelativeLayout cardView;
 
         VideoImageHolder(View view) {

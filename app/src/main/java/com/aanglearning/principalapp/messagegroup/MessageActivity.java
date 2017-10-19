@@ -96,7 +96,10 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -137,21 +140,6 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
 
         if (PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
             getBackupMessages();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (newMsgLayout.getVisibility() == View.VISIBLE) {
-            newMsgLayout.setVisibility(View.GONE);
-            fabButton.setVisibility(View.VISIBLE);
-            fabButton.showFloatingActionButton();
-            newMsg.setText("");
-            youtubeURL.setText("");
-            youtubeURL.setVisibility(View.GONE);
-            enterMsg.setImageResource(R.drawable.ic_send_black);
-        } else {
-            super.onBackPressed();
         }
     }
 
@@ -563,5 +551,20 @@ public class MessageActivity extends AppCompatActivity implements MessageView, V
     public void onStop() {
         super.onStop();
         adapter.releaseLoaders();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (newMsgLayout.getVisibility() == View.VISIBLE) {
+            newMsgLayout.setVisibility(View.GONE);
+            fabButton.setVisibility(View.VISIBLE);
+            fabButton.showFloatingActionButton();
+            newMsg.setText("");
+            youtubeURL.setText("");
+            youtubeURL.setVisibility(View.GONE);
+            enterMsg.setImageResource(R.drawable.ic_send_black);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

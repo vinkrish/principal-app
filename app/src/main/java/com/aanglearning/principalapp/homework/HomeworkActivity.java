@@ -49,7 +49,6 @@ import butterknife.ButterKnife;
 
 public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         AdapterView.OnItemSelectedListener {
-
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
@@ -69,7 +68,10 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homework);
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -104,12 +106,6 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
                 }
             }
         });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
     }
 
     private void setDefaultDate() {
@@ -334,5 +330,11 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
     }
 }
