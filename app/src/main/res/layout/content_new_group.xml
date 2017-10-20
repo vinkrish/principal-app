@@ -60,7 +60,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_tiny"
                 android:layout_marginTop="@dimen/spacing_tiny"
-                android:paddingBottom="@dimen/spacing_small" />
+                android:paddingBottom="@dimen/spacing_small"
+                android:popupBackground="@color/default_white" />
 
             <CheckBox
                 android:id="@+id/checkBox"
@@ -90,7 +91,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_tiny"
-                android:paddingBottom="@dimen/spacing_small" />
+                android:paddingBottom="@dimen/spacing_small"
+                android:popupBackground="@color/default_white" />
 
         </LinearLayout>
 
