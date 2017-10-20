@@ -1,6 +1,5 @@
 package com.aanglearning.principalapp.newgroup;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -13,14 +12,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import com.aanglearning.principalapp.R;
+import com.aanglearning.principalapp.dao.GroupDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
+import com.aanglearning.principalapp.dashboard.DashboardActivity;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Section;
@@ -31,6 +31,7 @@ import com.aanglearning.principalapp.util.SharedPreferenceUtil;
 
 import org.joda.time.LocalDate;
 
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,8 +42,7 @@ public class NewGroupActivity extends AppCompatActivity implements NewGroupView,
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.progress) ProgressBar progressBar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.group_et) EditText groupName;
     @BindView(R.id.group) TextInputLayout groupLayout;
     @BindView(R.id.class_layout) LinearLayout classLayout;
@@ -58,9 +58,11 @@ public class NewGroupActivity extends AppCompatActivity implements NewGroupView,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_group);
-
         ButterKnife.bind(this);
+        init();
+    }
 
+    private void init() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -182,8 +184,10 @@ public class NewGroupActivity extends AppCompatActivity implements NewGroupView,
 
     @Override
     public void groupSaved(Groups groups) {
-        Intent intent = new Intent();
-        setResult(Activity.RESULT_OK, intent);
+        GroupDao.insertMany(Collections.singletonList(groups));
+        Intent intent = new Intent(this, DashboardActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         finish();
     }
 
@@ -204,6 +208,12 @@ public class NewGroupActivity extends AppCompatActivity implements NewGroupView,
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
     }
 
 }

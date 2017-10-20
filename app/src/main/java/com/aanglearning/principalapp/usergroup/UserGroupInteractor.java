@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.usergroup;
 
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.GroupUsers;
 import com.aanglearning.principalapp.model.UserGroup;
 
@@ -19,6 +20,8 @@ interface UserGroupInteractor {
         void onUserGroupSaved();
 
         void onUsersDeleted();
+
+        void onGroupDeleted(DeletedGroup deletedGroup);
     }
 
     void getUserGroup(long groupId, UserGroupInteractor.OnFinishedListener listener);
@@ -26,4 +29,6 @@ interface UserGroupInteractor {
     void saveUserGroup(ArrayList<UserGroup> userGroups, UserGroupInteractor.OnFinishedListener listener);
 
     void deleteUsers(ArrayList<UserGroup> userGroups, UserGroupInteractor.OnFinishedListener listener);
+
+    void deleteGroup(DeletedGroup deletedGroup, UserGroupInteractor.OnFinishedListener listener);
 }

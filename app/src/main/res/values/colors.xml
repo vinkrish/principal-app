@@ -20,4 +20,6 @@
     <color name="recycler_card_2">#FDFDFD</color>
     <color name="list_item_selected_state">#D7CCC8</color>
     <color name="list_item_normal_state">#FAFAFA</color>
+    <color name="red_light">#F44336</color>
+    <color name="red_dark">#B71C1C</color>
 </resources>

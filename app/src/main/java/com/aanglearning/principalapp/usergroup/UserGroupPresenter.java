@@ -1,5 +1,6 @@
 package com.aanglearning.principalapp.usergroup;
 
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.UserGroup;
 
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ interface UserGroupPresenter {
     void saveUserGroup(ArrayList<UserGroup> userGroups);
 
     void deleteUsers(ArrayList<UserGroup> userGroups);
+
+    void deleteGroup(DeletedGroup deletedGroup);
 
     void onDestroy();
 }

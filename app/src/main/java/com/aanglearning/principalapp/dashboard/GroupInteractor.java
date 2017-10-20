@@ -1,6 +1,7 @@
 package com.aanglearning.principalapp.dashboard;
 
 import com.aanglearning.principalapp.model.Authorization;
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.Groups;
 
 import java.util.List;
@@ -20,6 +21,8 @@ interface GroupInteractor {
         void onRecentPrincipalGroupsReceived(List<Groups> groupsList);
 
         void onPrincipalGroupsReceived(List<Groups> groupsList);
+
+        void onDeletedGroupsReceived(List<DeletedGroup> deletedGroups);
     }
 
     void getGroupsAboveId(long schoolId, long id, GroupInteractor.OnFinishedListener listener);
@@ -29,4 +32,8 @@ interface GroupInteractor {
     void getPrincipalGroupsAboveId(long userId, long id, GroupInteractor.OnFinishedListener listener);
 
     void getPrincipalGroups(long teacherId, GroupInteractor.OnFinishedListener listener);
+
+    void getRecentDeletedGroups(long schoolId, long id, GroupInteractor.OnFinishedListener listener);
+
+    void getDeletedGroups(long schoolId, GroupInteractor.OnFinishedListener listener);
 }

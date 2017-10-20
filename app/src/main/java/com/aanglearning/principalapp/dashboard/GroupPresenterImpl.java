@@ -1,6 +1,8 @@
 package com.aanglearning.principalapp.dashboard;
 
+import com.aanglearning.principalapp.dao.DeletedGroupDao;
 import com.aanglearning.principalapp.model.Authorization;
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.Groups;
 
 import java.util.List;
@@ -49,6 +51,20 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
     }
 
     @Override
+    public void getRecentDeletedGroups(long schoolId, long id) {
+        if (mView != null) {
+            mInteractor.getRecentDeletedGroups(schoolId, id, this);
+        }
+    }
+
+    @Override
+    public void getDeletedGroups(long schoolId) {
+        if (mView != null) {
+            mInteractor.getDeletedGroups(schoolId, this);
+        }
+    }
+
+    @Override
     public void onDestroy() {
         mView = null;
     }
@@ -90,6 +106,13 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
         if (mView != null) {
             mView.setPrincipalGroups(groupsList);
             mView.hideProgress();
+        }
+    }
+
+    @Override
+    public void onDeletedGroupsReceived(List<DeletedGroup> deletedGroups) {
+        if (mView != null) {
+            DeletedGroupDao.insertDeletedGroups(deletedGroups);
         }
     }
 

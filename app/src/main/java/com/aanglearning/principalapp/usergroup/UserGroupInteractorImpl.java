@@ -4,6 +4,7 @@ import com.aanglearning.principalapp.App;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.api.ApiClient;
 import com.aanglearning.principalapp.api.PrincipalApi;
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.GroupUsers;
 import com.aanglearning.principalapp.model.UserGroup;
 
@@ -80,6 +81,28 @@ class UserGroupInteractorImpl implements UserGroupInteractor {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                listener.onError(App.getInstance().getString(R.string.network_error));
+            }
+        });
+    }
+
+    @Override
+    public void deleteGroup(DeletedGroup deletedGroup, final OnFinishedListener listener) {
+        PrincipalApi api = ApiClient.getAuthorizedClient().create(PrincipalApi.class);
+
+        Call<DeletedGroup> queue = api.deleteGroup(deletedGroup);
+        queue.enqueue(new Callback<DeletedGroup>() {
+            @Override
+            public void onResponse(Call<DeletedGroup> call, Response<DeletedGroup> response) {
+                if(response.isSuccessful()) {
+                    listener.onGroupDeleted(response.body());
+                } else {
+                    listener.onError(App.getInstance().getString(R.string.request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DeletedGroup> call, Throwable t) {
                 listener.onError(App.getInstance().getString(R.string.network_error));
             }
         });

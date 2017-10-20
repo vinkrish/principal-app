@@ -1,6 +1,5 @@
 package com.aanglearning.principalapp.dashboard;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -36,12 +35,14 @@ import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.attendance.AttendanceActivity;
 import com.aanglearning.principalapp.calendar.CalendarActivity;
 import com.aanglearning.principalapp.chathome.ChatsActivity;
+import com.aanglearning.principalapp.dao.DeletedGroupDao;
 import com.aanglearning.principalapp.dao.GroupDao;
 import com.aanglearning.principalapp.dao.ServiceDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.homework.HomeworkActivity;
 import com.aanglearning.principalapp.login.LoginActivity;
 import com.aanglearning.principalapp.messagegroup.MessageActivity;
+import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.Groups;
 import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.model.Teacher;
@@ -58,7 +59,6 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,8 +79,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     private GroupPresenter presenter;
     private GroupAdapter adapter;
     private Teacher teacher;
-
-    final static int REQ_CODE = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,8 +215,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
 
     public void addGroup(View view) {
         if (NetworkUtil.isNetworkAvailable(this)) {
-            Intent intent = new Intent(this, NewGroupActivity.class);
-            startActivityForResult(intent, REQ_CODE);
+            startActivity(new Intent(this, NewGroupActivity.class));
         } else {
             showSnackbar("You are offline,check your internet.");
         }
@@ -264,6 +261,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
     public void setRecentPrincipalGroups(List<Groups> groups) {
         adapter.updateDataSet(groups);
         backupGroups(groups);
+        syncDeletedGroups();
     }
 
     @Override
@@ -275,6 +273,7 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             adapter.replaceData(groups);
             backupGroups(groups);
         }
+        syncDeletedGroups();
     }
 
     private void backupGroups(final List<Groups> groups) {
@@ -284,6 +283,15 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                 GroupDao.insertMany(groups);
             }
         }).start();
+    }
+
+    private void syncDeletedGroups() {
+        DeletedGroup deletedGroup = DeletedGroupDao.getNewestDeletedGroup();
+        if(deletedGroup.getId() == 0) {
+            presenter.getDeletedGroups(teacher.getSchoolId());
+        } else {
+            presenter.getRecentDeletedGroups(teacher.getSchoolId(), deletedGroup.getId());
+        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -395,13 +403,6 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             startActivity(intent);
         }
     };
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            loadData();
-        }
-    }
 
     @Override
     public void onDestroy() {
