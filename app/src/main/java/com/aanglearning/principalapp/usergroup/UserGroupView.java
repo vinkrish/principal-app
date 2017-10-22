@@ -1,6 +1,5 @@
 package com.aanglearning.principalapp.usergroup;
 
-import com.aanglearning.principalapp.model.DeletedGroup;
 import com.aanglearning.principalapp.model.GroupUsers;
 
 /**
@@ -20,5 +19,7 @@ interface UserGroupView {
 
     void userGroupDeleted();
 
-    void groupDeleted(DeletedGroup deletedGroup);
+    void groupDeleted();
+
+    void onDeletedGroupSync();
 }
