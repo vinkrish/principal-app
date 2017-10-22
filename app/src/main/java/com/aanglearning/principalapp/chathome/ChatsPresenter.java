@@ -7,5 +7,7 @@ package com.aanglearning.principalapp.chathome;
 interface ChatsPresenter {
     void getChats(long teacherId);
 
+    void deleteChat(long id);
+
     void onDestroy();
 }

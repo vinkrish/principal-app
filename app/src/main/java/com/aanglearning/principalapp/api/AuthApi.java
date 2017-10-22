@@ -1,7 +1,6 @@
 package com.aanglearning.principalapp.api;
 
 import com.aanglearning.principalapp.model.Authorization;
-import com.aanglearning.principalapp.model.CommonResponse;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
 

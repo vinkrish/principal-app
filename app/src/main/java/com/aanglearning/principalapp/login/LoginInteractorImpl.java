@@ -2,11 +2,8 @@ package com.aanglearning.principalapp.login;
 
 import com.aanglearning.principalapp.App;
 import com.aanglearning.principalapp.R;
-import com.aanglearning.principalapp.api.APIError;
 import com.aanglearning.principalapp.api.ApiClient;
 import com.aanglearning.principalapp.api.AuthApi;
-import com.aanglearning.principalapp.api.ErrorUtils;
-import com.aanglearning.principalapp.model.CommonResponse;
 import com.aanglearning.principalapp.model.Credentials;
 import com.aanglearning.principalapp.model.TeacherCredentials;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;

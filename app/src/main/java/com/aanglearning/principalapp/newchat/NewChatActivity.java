@@ -33,8 +33,7 @@ import butterknife.ButterKnife;
 public class NewChatActivity extends AppCompatActivity implements NewChatView,
         AdapterView.OnItemSelectedListener{
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.class_spinner) Spinner classSpinner;
     @BindView(R.id.section_spinner) Spinner sectionSpinner;
@@ -58,12 +57,6 @@ public class NewChatActivity extends AppCompatActivity implements NewChatView,
     public void onResume() {
         super.onResume();
         presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
     }
 
     private void showSnackbar(String message) {
@@ -165,6 +158,12 @@ public class NewChatActivity extends AppCompatActivity implements NewChatView,
         newChat.setCreatedBy(t.getId());
         newChat.setCreatorRole("principal");
         presenter.saveChat(newChat);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
     }
 
 }
