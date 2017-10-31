@@ -23,19 +23,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".login.LoginActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".dashboard.DashboardActivity"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" />
-
         <activity
             android:name=".attendance.AttendanceActivity"
             android:label="@string/title_activity_attendance"
@@ -46,7 +43,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
@@ -57,7 +53,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".chathome.ChatsActivity" />
         </activity>
-
         <activity
             android:name=".chathome.ChatsActivity"
             android:label="@string/title_activity_chats"
@@ -68,7 +63,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".homework.HomeworkActivity"
             android:label="@string/title_activity_homework"
@@ -79,7 +73,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".messagegroup.MessageActivity"
             android:label="@string/title_activity_message"
@@ -89,7 +82,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".usergroup.UserGroupActivity"
             android:label="@string/title_activity_user_group"
@@ -100,7 +92,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".messagegroup.MessageActivity" />
         </activity>
-
         <activity
             android:name=".newchat.NewChatActivity"
             android:label="@string/title_activity_new_chat"
@@ -111,7 +102,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".chathome.ChatsActivity" />
         </activity>
-
         <activity
             android:name=".timetable.TimetableActivity"
             android:label="@string/title_activity_timetable"
@@ -129,7 +119,6 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".fcm.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -145,7 +134,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dashboard.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".messagegroup.ImageUploadActivity"
             android:label="@string/upload_image"
@@ -193,7 +181,7 @@
 
         <service
             android:name=".util.VersionIntentService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
             android:name="com.darsh.multipleimageselect.activities.AlbumSelectActivity"
@@ -202,6 +190,16 @@
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".gallery.GalleryActivity"
+            android:label="@string/gallery"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.ContextToolbarTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dashboard.DashboardActivity" />
+        </activity>
+        <activity android:name=".album.AlbumActivity"/>
     </application>
 
 </manifest>

@@ -75,6 +75,13 @@
     <string name="for_class">This group is for class</string>
     <string name="for_school">This group is for school</string>
 
+    <string name="_new">New</string>
+    <string name="gallery">Gallery</string>
+    <string name="new_album">New Album</string>
+    <string name="album_name">Album Name</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_album">No Albums!</string>
+
     <string name="logout">Logout</string>
     <string name="refresh">Refresh</string>
     <string name="title_activity_attendance">Attendance</string>
