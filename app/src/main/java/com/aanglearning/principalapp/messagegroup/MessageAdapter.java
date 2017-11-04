@@ -253,14 +253,14 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             } else {
                 Picasso.with(mContext)
                         .load("https://s3.ap-south-1.amazonaws.com/shikshitha-images/" + schoolId + "/" + message.getImageUrl())
-                        .placeholder(R.drawable.splash_image)
+                        .placeholder(R.drawable.placeholder)
                         .into(sharedImage, new Callback() {
                             @Override
                             public void onSuccess() {
                                 Bitmap bitmap = ((BitmapDrawable)sharedImage.getDrawable()).getBitmap();
                                 try {
                                     FileOutputStream fos = new FileOutputStream(file);
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos);
                                     fos.close();
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -269,7 +269,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
                             @Override
                             public void onError() {
-
+                                sharedImage.setImageResource(R.drawable.placeholder);
                             }
                         });
             }
@@ -376,14 +376,14 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
             } else {
                 Picasso.with(mContext)
                         .load("https://s3.ap-south-1.amazonaws.com/shikshitha-images/" + schoolId + "/" + message.getImageUrl())
-                        .placeholder(R.drawable.splash_image)
+                        .placeholder(R.drawable.placeholder)
                         .into(sharedImage, new Callback() {
                             @Override
                             public void onSuccess() {
                                 Bitmap bitmap = ((BitmapDrawable) sharedImage.getDrawable()).getBitmap();
                                 try {
                                     FileOutputStream fos = new FileOutputStream(file);
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos);
                                     fos.close();
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -392,7 +392,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
                             @Override
                             public void onError() {
-
+                                sharedImage.setImageResource(R.drawable.placeholder);
                             }
                         });
             }

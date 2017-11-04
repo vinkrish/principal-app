@@ -387,14 +387,14 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
             } else {
                 Picasso.with(this)
                         .load("https://s3.ap-south-1.amazonaws.com/shikshitha-images/" + teacher.getSchoolId() + "/" + teacher.getImage())
-                        .placeholder(R.drawable.splash_image)
+                        .placeholder(R.drawable.ic_account_black)
                         .into(imageView, new Callback() {
                             @Override
                             public void onSuccess() {
                                 Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
                                 try {
                                     FileOutputStream fos = new FileOutputStream(file);
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
                                     fos.close();
                                 } catch (IOException e) {
                                     e.printStackTrace();
