@@ -1,6 +1,8 @@
 package com.aanglearning.principalapp.chat;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -24,6 +26,7 @@ import com.aanglearning.principalapp.dao.MessageDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.MessageEvent;
+import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.util.EndlessRecyclerViewScrollListener;
 import com.aanglearning.principalapp.util.NetworkUtil;
 
@@ -33,7 +36,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -52,9 +54,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
 
     private long recipientId;
     private String recipientName;
+    private Teacher teacher;
     private ChatPresenter presenter;
     private ChatAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
+
+    final static int REQ_CODE = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +75,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            recipientId = getIntent().getLongExtra("recipientId", 0);
+            recipientId = extras.getLong("recipientId", 0);
             recipientName = extras.getString("recipientName", "");
         }
         getSupportActionBar().setTitle(recipientName);
+
+        teacher = TeacherDao.getTeacher();
 
         presenter = new ChatPresenterImpl(this, new ChatInteractorImpl());
 
@@ -85,7 +92,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     }
 
     private void showOfflineData() {
-        List<Message> messages = MessageDao.getMessages(TeacherDao.getTeacher().getId(), "principal", recipientId, "student");
+        List<Message> messages = MessageDao.getMessages(teacher.getId(), "principal", recipientId, "student");
         if(messages.size() == 0) {
             noChats.setVisibility(View.VISIBLE);
         } else {
@@ -104,11 +111,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     public void onResume() {
         super.onResume();
         App.activityResumed();
+        syncRecentData();
+    }
+
+    private void syncRecentData() {
         if(NetworkUtil.isNetworkAvailable(this)){
             if(adapter.getItemCount() == 0) {
-                presenter.getMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId);
+                presenter.getMessages("principal", teacher.getId(), "student", recipientId);
             } else {
-                presenter.getRecentMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
+                presenter.getRecentMessages("principal", teacher.getId(), "student", recipientId,
                         adapter.getDataSet().get(0).getId());
             }
         }
@@ -139,17 +150,17 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        adapter = new ChatAdapter(this, new ArrayList<Message>(0));
+        adapter = new ChatAdapter(this, new ArrayList<Message>(0), teacher.getSchoolId());
         recyclerView.setAdapter(adapter);
 
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if(NetworkUtil.isNetworkAvailable(ChatActivity.this)) {
-                    presenter.getFollowupMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
+                    presenter.getFollowupMessages("principal", teacher.getId(), "student", recipientId,
                             adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
                 } else {
-                    List<Message> messages = MessageDao.getMessagesFromId(TeacherDao.getTeacher().getId(), "principal",
+                    List<Message> messages = MessageDao.getMessagesFromId(teacher.getId(), "principal",
                             recipientId, "student",
                             adapter.getDataSet().get(adapter.getDataSet().size()-1).getId());
                     adapter.updateDataSet(messages);
@@ -178,7 +189,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         if(NetworkUtil.isNetworkAvailable(this) && event.senderId == recipientId){
-            presenter.getRecentMessages("principal", TeacherDao.getTeacher().getId(), "student", recipientId,
+            presenter.getRecentMessages("principal", teacher.getId(), "student", recipientId,
                     adapter.getDataSet().get(0).getId());
         }
     }
@@ -205,9 +216,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     @Override
     public void onMessageSaved(Message message) {
         noChats.setVisibility(View.INVISIBLE);
-        adapter.insertDataSet(message);
-        recyclerView.smoothScrollToPosition(0);
-        backupChats(Collections.singletonList(message));
+        syncRecentData();
     }
 
     @Override
@@ -232,7 +241,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //MessageDao.clearChatMessages(TeacherDao.getTeacher().getId(), "teacher", recipientId, "student");
                 MessageDao.insertChatMessages(messages);
             }
         }).start();
@@ -244,9 +252,26 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         backupChats(messages);
     }
 
+    public void uploadImage(View view) {
+        Intent intent = new Intent(ChatActivity.this, ChatImageActivity.class);
+        intent.putExtra("recipientId", recipientId);
+        startActivityForResult(intent, REQ_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case (REQ_CODE): {
+                if (resultCode == Activity.RESULT_OK) {}
+                else showSnackbar("Canceled Image Upload");
+                break;
+            }
+        }
+    }
+
     public void newMsgSendListener (View view) {
         sendMessage("text", "");
-        newMsg.setText("");
     }
 
     private void sendMessage(String messageType, String imgUrl) {
@@ -260,8 +285,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
         } else {
             if (NetworkUtil.isNetworkAvailable(this)) {
                 Message message = new Message();
-                message.setSenderId(TeacherDao.getTeacher().getId());
-                message.setSenderName(TeacherDao.getTeacher().getName());
+                message.setSenderId(teacher.getId());
+                message.setSenderName(teacher.getName());
                 message.setSenderRole("principal");
                 message.setRecipientId(recipientId);
                 message.setRecipientRole("student");
@@ -272,6 +297,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
                 message.setMessageBody(newMsg.getText().toString());
                 message.setCreatedAt(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date()));
                 presenter.saveMessage(message);
+                newMsg.setText("");
             } else {
                 showSnackbar("You are offline,check your internet.");
             }
