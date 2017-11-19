@@ -29,6 +29,7 @@ import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Section;
+import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.util.Conversion;
 import com.aanglearning.principalapp.util.DatePickerFragment;
 import com.aanglearning.principalapp.util.DateUtil;
@@ -62,6 +63,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
     private HomeworkPresenter presenter;
     private HomeworkAdapter homeworkAdapter;
     private String homeworkDate;
+    private Teacher teacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +88,10 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
         setDefaultDate();
 
+        teacher = TeacherDao.getTeacher();
+
         if(NetworkUtil.isNetworkAvailable(this)) {
-            presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+            presenter.getClassList(teacher.getSchoolId());
         } else {
             showOfflineClass();
         }
@@ -102,7 +106,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
             @Override
             public void onRefresh() {
                 if(NetworkUtil.isNetworkAvailable(HomeworkActivity.this)) {
-                    presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
+                    presenter.getClassList(teacher.getSchoolId());
                 }
             }
         });
@@ -210,14 +214,14 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ClassDao.delete(TeacherDao.getTeacher().getSchoolId());
+                ClassDao.delete(teacher.getSchoolId());
                 ClassDao.insert(classList);
             }
         }).start();
     }
 
     private void showOfflineClass() {
-        List<Clas> clasList = ClassDao.getClassList(TeacherDao.getTeacher().getSchoolId());
+        List<Clas> clasList = ClassDao.getClassList(teacher.getSchoolId());
         ArrayAdapter<Clas> adapter = new
                 ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clasList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
