@@ -84,6 +84,8 @@
     <string name="no_photos">No photos shared!</string>
     <string name="mark_cover_pic">Mark as CoverPic</string>
 
+    <string name="ash">#</string>
+    <string name="score">Score</string>
     <string name="no_exams">No Exams!</string>
     <string name="no_score">No Score!</string>
     <string name="no_act_score">No Activity Score!</string>
