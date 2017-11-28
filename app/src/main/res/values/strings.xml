@@ -63,10 +63,10 @@
     <string name="valid_mobile">Should be of 10 numbers</string>
     <string name="valid_password">Should be atleast 6 characters long</string>
 
-    <string name="select_class">Select Class</string>
-    <string name="select_section">Select Section</string>
-    <string name="select_student">Select Student</string>
-    <string name="select_period">Select Period</string>
+    <string name="select_class">Class</string>
+    <string name="select_section">Section</string>
+    <string name="select_student">Student</string>
+    <string name="select_period">Period</string>
     <string name="session">Session</string>
     <string name="morning">Morning</string>
     <string name="afternoon">Afternoon</string>

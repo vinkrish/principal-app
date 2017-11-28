@@ -258,6 +258,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
     public void showAttendance(AttendanceSet attendanceSet) {
         refreshLayout.setRefreshing(false);
         if (attendanceSet.getAttendanceList().size() == 0) {
+            attendanceAdapter.setDataSet(new ArrayList<Attendance>(0));
             noAttendance.setVisibility(View.VISIBLE);
         } else {
             noAttendance.setVisibility(View.INVISIBLE);
