@@ -1,7 +1,9 @@
 package com.aanglearning.principalapp.gallery;
 
 import com.aanglearning.principalapp.model.Album;
+import com.aanglearning.principalapp.model.Clas;
 import com.aanglearning.principalapp.model.DeletedAlbum;
+import com.aanglearning.principalapp.model.Section;
 
 import java.util.List;
 
@@ -13,7 +15,9 @@ interface GalleryInteractor {
     interface OnFinishedListener {
         void onError(String message);
 
-        void onAlbumSaved(Album album);
+        void onClassReceived(List<Clas> classList);
+
+        void onSectionReceived(List<Section> sectionList);
 
         void onAlbumDeleted();
 
@@ -24,7 +28,9 @@ interface GalleryInteractor {
         void onDeletedAlbumsReceived(List<DeletedAlbum> deletedAlbums);
     }
 
-    void saveAlbum(Album album, GalleryInteractor.OnFinishedListener listener);
+    void getClassList(long schoolId, GalleryInteractor.OnFinishedListener listener);
+
+    void getSectionList(long classId, GalleryInteractor.OnFinishedListener listener);
 
     void deleteAlbum(DeletedAlbum deletedAlbum, GalleryInteractor.OnFinishedListener listener);
 

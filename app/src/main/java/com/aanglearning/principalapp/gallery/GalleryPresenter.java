@@ -1,6 +1,5 @@
 package com.aanglearning.principalapp.gallery;
 
-import com.aanglearning.principalapp.model.Album;
 import com.aanglearning.principalapp.model.DeletedAlbum;
 
 /**
@@ -8,7 +7,9 @@ import com.aanglearning.principalapp.model.DeletedAlbum;
  */
 
 interface GalleryPresenter {
-    void saveAlbum(Album album);
+    void getClassList(long schoolId);
+
+    void getSectionList(long classId);
 
     void deleteAlbum(DeletedAlbum deletedAlbum);
 
