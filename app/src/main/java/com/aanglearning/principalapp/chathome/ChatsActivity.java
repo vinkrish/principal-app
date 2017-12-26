@@ -26,6 +26,7 @@ import com.aanglearning.principalapp.dao.ChatDao;
 import com.aanglearning.principalapp.dao.TeacherDao;
 import com.aanglearning.principalapp.model.Chat;
 import com.aanglearning.principalapp.newchat.NewChatActivity;
+import com.aanglearning.principalapp.util.Conversion;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
 import com.aanglearning.principalapp.util.NetworkUtil;
 import com.aanglearning.principalapp.util.PaddedItemDecoration;
@@ -92,7 +93,7 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new PaddedItemDecoration(this));
+        recyclerView.addItemDecoration(new PaddedItemDecoration(this, Conversion.dpToPx(68, getApplicationContext())));
 
         adapter = new ChatsAdapter(getApplicationContext(), new ArrayList<Chat>(0));
         recyclerView.setAdapter(adapter);

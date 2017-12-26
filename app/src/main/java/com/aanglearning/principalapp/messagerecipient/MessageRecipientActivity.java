@@ -23,6 +23,7 @@ import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.GroupDao;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.MessageRecipient;
+import com.aanglearning.principalapp.util.Conversion;
 import com.aanglearning.principalapp.util.DividerItemDecoration;
 import com.aanglearning.principalapp.util.PaddedItemDecoration;
 import com.aanglearning.principalapp.util.SharedPreferenceUtil;
@@ -178,14 +179,14 @@ public class MessageRecipientActivity extends AppCompatActivity implements Messa
         readRecyclerView.setNestedScrollingEnabled(false);
         readRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         readRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        readRecyclerView.addItemDecoration(new PaddedItemDecoration(this));
+        readRecyclerView.addItemDecoration(new PaddedItemDecoration(this, Conversion.dpToPx(68, getApplicationContext())));
         readAdapter = new MessageRecipientAdapter(new ArrayList<MessageRecipient>(0));
         readRecyclerView.setAdapter(readAdapter);
 
         deliveredRecyclerView.setNestedScrollingEnabled(false);
         deliveredRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         deliveredRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        deliveredRecyclerView.addItemDecoration(new PaddedItemDecoration(this));
+        deliveredRecyclerView.addItemDecoration(new PaddedItemDecoration(this, Conversion.dpToPx(68, getApplicationContext())));
         deliveredAdapter = new MessageRecipientAdapter(new ArrayList<MessageRecipient>(0));
         deliveredRecyclerView.setAdapter(deliveredAdapter);
 
