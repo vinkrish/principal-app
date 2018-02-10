@@ -17,7 +17,7 @@ import retrofit2.http.Path;
 public interface AuthApi {
 
     @Headers("content-type: application/json")
-    @POST("teacher/principal/login")
+    @POST("teacher/principal/v2/login")
     Call<TeacherCredentials> login(@Body Credentials credentials);
 
     @Headers("content-type: application/json")

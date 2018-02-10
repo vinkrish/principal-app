@@ -126,6 +126,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         App.activityPaused();
