@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.aanglearning.principalapp.BaseActivity;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.chat.ChatActivity;
 import com.aanglearning.principalapp.dao.ChatDao;
@@ -38,7 +39,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ChatsActivity extends AppCompatActivity implements ChatsView {
+public class ChatsActivity extends BaseActivity implements ChatsView {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.refreshLayout) SwipeRefreshLayout refreshLayout;
@@ -81,6 +82,10 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
                 presenter.getChats(TeacherDao.getTeacher().getId());
             }
         });
+
+        setProfile(TeacherDao.getTeacher());
+
+        setNavigationItem(7);
 
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getChats(TeacherDao.getTeacher().getId());
@@ -142,7 +147,7 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
         if (NetworkUtil.isNetworkAvailable(this)) {
             startActivity(new Intent(ChatsActivity.this, NewChatActivity.class));
             overridePendingTransition(R.anim.activity_open_translate,R.anim.activity_close_scale);
-            finish();
+            //finish();
         } else {
             showSnackbar("You are offline,check your internet.");
         }
@@ -260,17 +265,6 @@ public class ChatsActivity extends AppCompatActivity implements ChatsView {
                 adapter.selectedItemChanged(position, selectedChat);
             }
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

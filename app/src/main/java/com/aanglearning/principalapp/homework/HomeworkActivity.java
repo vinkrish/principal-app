@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.aanglearning.principalapp.BaseActivity;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.ClassDao;
 import com.aanglearning.principalapp.dao.HomeworkDao;
@@ -49,7 +50,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
+public class HomeworkActivity extends BaseActivity implements HomeworkView,
         AdapterView.OnItemSelectedListener {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
@@ -76,7 +77,7 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
 
     private void init() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         presenter = new HomeworkPresenterImpl(this, new HomeworkInteractorImpl());
 
@@ -90,6 +91,10 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
         setDefaultDate();
 
         teacher = TeacherDao.getTeacher();
+
+        setProfile(teacher);
+
+        setNavigationItem(2);
 
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getClassList(teacher.getSchoolId());
@@ -328,17 +333,6 @@ public class HomeworkActivity extends AppCompatActivity implements HomeworkView,
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

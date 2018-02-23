@@ -26,6 +26,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.aanglearning.principalapp.BaseActivity;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.ClassDao;
 import com.aanglearning.principalapp.dao.SectionDao;
@@ -45,7 +46,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TimetableActivity extends AppCompatActivity implements TimetableView,
+public class TimetableActivity extends BaseActivity implements TimetableView,
         AdapterView.OnItemSelectedListener {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
@@ -72,6 +73,10 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         presenter = new TimetablePresenterImpl(this, new TimetableInteractorImpl());
+
+        setProfile(TeacherDao.getTeacher());
+
+        setNavigationItem(3);
 
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getClassList(TeacherDao.getTeacher().getSchoolId());
@@ -640,17 +645,6 @@ public class TimetableActivity extends AppCompatActivity implements TimetableVie
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

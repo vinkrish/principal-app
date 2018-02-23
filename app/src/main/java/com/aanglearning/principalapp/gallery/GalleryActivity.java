@@ -27,6 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.aanglearning.principalapp.BaseActivity;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.album.AlbumActivity;
 import com.aanglearning.principalapp.dao.AlbumDao;
@@ -48,7 +49,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GalleryActivity extends AppCompatActivity implements GalleryView,
+public class GalleryActivity extends BaseActivity implements GalleryView,
         AdapterView.OnItemSelectedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -91,6 +92,10 @@ public class GalleryActivity extends AppCompatActivity implements GalleryView,
         setupRecyclerView();
 
         loadOfflineData();
+
+        setProfile(teacher);
+
+        setNavigationItem(6);
 
         if (PermissionUtil.isStoragePermissionGranted(this, WRITE_STORAGE_PERMISSION)) {
             syncGallery();
@@ -487,17 +492,6 @@ public class GalleryActivity extends AppCompatActivity implements GalleryView,
             noAlbums.setVisibility(View.INVISIBLE);
             adapter.replaceData(albums, selectedAlbum);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

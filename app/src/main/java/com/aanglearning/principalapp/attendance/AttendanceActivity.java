@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.aanglearning.principalapp.BaseActivity;
 import com.aanglearning.principalapp.R;
 import com.aanglearning.principalapp.dao.AttendanceDao;
 import com.aanglearning.principalapp.dao.ClassDao;
@@ -52,7 +53,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AttendanceActivity extends AppCompatActivity implements AttendanceView,
+public class AttendanceActivity extends BaseActivity implements AttendanceView,
         AdapterView.OnItemSelectedListener {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
@@ -85,7 +86,7 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
 
     private void init() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         presenter = new AttendancePresenterImpl(this, new AttendanceInteractorImpl());
         setDefaultDate();
@@ -95,6 +96,10 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
         showSession();
 
         teacher = TeacherDao.getTeacher();
+
+        setProfile(teacher);
+
+        setNavigationItem(1);
 
         if(NetworkUtil.isNetworkAvailable(this)) {
             presenter.getClassList(teacher.getSchoolId());
@@ -477,17 +482,6 @@ public class AttendanceActivity extends AppCompatActivity implements AttendanceV
             noAttendance.setVisibility(View.INVISIBLE);
             attendanceAdapter.setDataSet(attendanceList);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
