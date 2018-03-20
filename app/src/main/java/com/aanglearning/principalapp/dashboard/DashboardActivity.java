@@ -50,6 +50,7 @@ import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.newgroup.NewGroupActivity;
 import com.aanglearning.principalapp.reportcard.ReportActivity;
+import com.aanglearning.principalapp.settings.SettingsActivity;
 import com.aanglearning.principalapp.sqlite.SqlDbHelper;
 import com.aanglearning.principalapp.timetable.TimetableActivity;
 import com.aanglearning.principalapp.util.Conversion;
@@ -143,15 +144,9 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new PaddedItemDecoration(this, Conversion.dpToPx(68, getApplicationContext())));
+        recyclerView.addItemDecoration(new PaddedItemDecoration(this, Conversion.dpToPx(70, getApplicationContext())));
         adapter = new GroupAdapter(new ArrayList<Groups>(0), mItemListener);
         recyclerView.setAdapter(adapter);
-
-        refreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(this, R.color.colorPrimary),
-                ContextCompat.getColor(this, R.color.colorAccent),
-                ContextCompat.getColor(this, R.color.colorPrimaryDark)
-        );
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -216,9 +211,10 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
         Service service = ServiceDao.getServices();
         if (!service.isAttendance()) menu.findItem(R.id.attendance_item).setVisible(false);
         if (!service.isHomework()) menu.findItem(R.id.homework_item).setVisible(false);
-        if(!service.isReport()) menu.findItem(R.id.result_item).setVisible(false);
-        if (!service.isChat()) menu.findItem(R.id.chat_item).setVisible(false);
         if (!service.isTimetable()) menu.findItem(R.id.timetable_item).setVisible(false);
+        if (!service.isReport()) menu.findItem(R.id.result_item).setVisible(false);
+        if (!service.isGallery())menu.findItem(R.id.gallery_item).setVisible(false);
+        if (!service.isChat()) menu.findItem(R.id.chat_item).setVisible(false);
     }
 
     public void addGroup(View view) {
@@ -358,6 +354,10 @@ public class DashboardActivity extends AppCompatActivity implements GroupView {
                         menuItem.setChecked(true);
                         startActivity(new Intent(DashboardActivity.this, ChatsActivity.class));
                         finish();
+                        break;
+                    case R.id.settings_item:
+                        drawerLayout.closeDrawers();
+                        startActivity(new Intent(DashboardActivity.this, SettingsActivity.class));
                         break;
                     case R.id.logout_item:
                         logout();

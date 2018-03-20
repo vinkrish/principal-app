@@ -30,6 +30,7 @@ import com.aanglearning.principalapp.login.LoginActivity;
 import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.model.Teacher;
 import com.aanglearning.principalapp.reportcard.ReportActivity;
+import com.aanglearning.principalapp.settings.SettingsActivity;
 import com.aanglearning.principalapp.sqlite.SqlDbHelper;
 import com.aanglearning.principalapp.timetable.TimetableActivity;
 import com.aanglearning.principalapp.util.PermissionUtil;
@@ -119,11 +120,12 @@ public class BaseActivity extends AppCompatActivity {
     private void hideDrawerItem() {
         Menu menu = navigationView.getMenu();
         Service service = ServiceDao.getServices();
-        if(!service.isAttendance()) menu.findItem(R.id.attendance_item).setVisible(false);
-        if(!service.isHomework()) menu.findItem(R.id.homework_item).setVisible(false);
-        if(!service.isReport())menu.findItem(R.id.result_item).setVisible(false);
-        if(!service.isChat()) menu.findItem(R.id.chat_item).setVisible(false);
+        if (!service.isAttendance()) menu.findItem(R.id.attendance_item).setVisible(false);
+        if (!service.isHomework()) menu.findItem(R.id.homework_item).setVisible(false);
         if (!service.isTimetable()) menu.findItem(R.id.timetable_item).setVisible(false);
+        if (!service.isReport())menu.findItem(R.id.result_item).setVisible(false);
+        if (!service.isGallery())menu.findItem(R.id.gallery_item).setVisible(false);
+        if (!service.isChat()) menu.findItem(R.id.chat_item).setVisible(false);
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -169,6 +171,10 @@ public class BaseActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         startActivity(new Intent(BaseActivity.this, ChatsActivity.class));
                         finish();
+                        break;
+                    case R.id.settings_item:
+                        drawerLayout.closeDrawers();
+                        startActivity(new Intent(BaseActivity.this, SettingsActivity.class));
                         break;
                     case R.id.logout_item:
                         logout();

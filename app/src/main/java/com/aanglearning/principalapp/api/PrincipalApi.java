@@ -13,6 +13,7 @@ import com.aanglearning.principalapp.model.Homework;
 import com.aanglearning.principalapp.model.Message;
 import com.aanglearning.principalapp.model.MessageRecipient;
 import com.aanglearning.principalapp.model.Section;
+import com.aanglearning.principalapp.model.Service;
 import com.aanglearning.principalapp.model.Student;
 import com.aanglearning.principalapp.model.Timetable;
 import com.aanglearning.principalapp.model.UserGroup;
@@ -189,5 +190,10 @@ public interface PrincipalApi {
 
     @GET("event/school/{schoolId}")
     Call<List<Evnt>> getEvents(@Path("schoolId") long schoolId);
+
+    //Service API
+
+    @GET("service/school/{id}")
+    Call<Service> getService(@Path("id") long id);
 
 }
