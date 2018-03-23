@@ -24,26 +24,20 @@ class HomeworkPresenterImpl implements HomeworkPresenter,
 
     @Override
     public void getClassList(long schoolId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getClassList(schoolId, this);
-        }
+        mView.showProgress();
+        mInteractor.getClassList(schoolId, this);
     }
 
     @Override
     public void getSectionList(long classId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getSectionList(classId, this);
-        }
+        mView.showProgress();
+        mInteractor.getSectionList(classId, this);
     }
 
     @Override
     public void getHomework(long sectionId, String date) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getHomework(sectionId, date, this);
-        }
+        mView.showProgress();
+        mInteractor.getHomework(sectionId, date, this);
     }
 
     @Override

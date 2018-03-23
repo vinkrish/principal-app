@@ -25,34 +25,26 @@ public class AttendancePresenterImpl implements AttendancePresenter,
 
     @Override
     public void getClassList(long schoolId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getClassList(schoolId, this);
-        }
+        mView.showProgress();
+        mInteractor.getClassList(schoolId, this);
     }
 
     @Override
     public void getSectionList(long classId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getSectionList(classId, this);
-        }
+        mView.showProgress();
+        mInteractor.getSectionList(classId, this);
     }
 
     @Override
     public void getAttendance(long sectionId, String date, int session) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getAttendance(sectionId, date, session, this);
-        }
+        mView.showProgress();
+        mInteractor.getAttendance(sectionId, date, session, this);
     }
 
     @Override
     public void getTimetable(long sectionId, String dayOfWeek) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getTimetable(sectionId, dayOfWeek, this);
-        }
+        mView.showProgress();
+        mInteractor.getTimetable(sectionId, dayOfWeek, this);
     }
 
     @Override

@@ -22,46 +22,34 @@ class GroupPresenterImpl implements GroupPresenter, GroupInteractor.OnFinishedLi
 
     @Override
     public void getGroupsAboveId(long schoolId, long id) {
-        if (mView != null) {
-            mInteractor.getGroupsAboveId(schoolId, id, this);
-        }
+        mInteractor.getGroupsAboveId(schoolId, id, this);
     }
 
     @Override
     public void getGroups(long schoolId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getGroups(schoolId, this);
-        }
+        mView.showProgress();
+        mInteractor.getGroups(schoolId, this);
     }
 
     @Override
     public void getPrincipalGroupsAboveId(long teacherId, long id) {
-        if (mView != null) {
-            mInteractor.getPrincipalGroupsAboveId(teacherId, id, this);
-        }
+        mInteractor.getPrincipalGroupsAboveId(teacherId, id, this);
     }
 
     @Override
     public void getPrincipalGroups(long teacherId) {
-        if (mView != null) {
-            mView.showProgress();
-            mInteractor.getPrincipalGroups(teacherId, this);
-        }
+        mView.showProgress();
+        mInteractor.getPrincipalGroups(teacherId, this);
     }
 
     @Override
     public void getRecentDeletedGroups(long schoolId, long id) {
-        if (mView != null) {
-            mInteractor.getRecentDeletedGroups(schoolId, id, this);
-        }
+        mInteractor.getRecentDeletedGroups(schoolId, id, this);
     }
 
     @Override
     public void getDeletedGroups(long schoolId) {
-        if (mView != null) {
-            mInteractor.getDeletedGroups(schoolId, this);
-        }
+        mInteractor.getDeletedGroups(schoolId, this);
     }
 
     @Override
